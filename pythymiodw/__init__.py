@@ -70,6 +70,7 @@ class Thymio(object):
 	self.network.SetVariable(self.device,"motor.left.target",[l])
 	self.network.SetVariable(self.device,"motor.right.target",[r])
 
+
     def halt(self):
 	self.network.SetVariable(self.device,"motor.left.target",[0])
 	self.network.SetVariable(self.device,"motor.right.target",[0])
