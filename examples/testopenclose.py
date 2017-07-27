@@ -1,3 +1,6 @@
+import sys
+sys.path.append('..')
+
 import pythymiodw as tdw
 import time
 
