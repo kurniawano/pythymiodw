@@ -11,7 +11,7 @@ class TestRead(sm.SM):
 	print inp.proximity[2]
 	#print inp.temperature
 	#print inp.accelerometer
-	return state, io.Action(0.05,0)
+	return state, io.Action(fv=0.05,rv=0)
 	
 MySM=TestRead()
 

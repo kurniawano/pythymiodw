@@ -6,7 +6,7 @@ class Action(object):
     W=0.095
 
     
-    def __init__(self, fv, rv):
+    def __init__(self, fv=0.0, rv=0.0):
 	self.fv=fv
 	self.rv=rv
 	self.convert()
