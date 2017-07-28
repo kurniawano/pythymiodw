@@ -1,13 +1,14 @@
 import time
 import subprocess
 import os
+import sys
 import signal
 
 import dbus
 import dbus.mainloop.glib
 import gobject
-import sys
 from optparse import OptionParser
+from threading import Thread
 
 #time step, 0.1 second
 dt = 100
@@ -24,6 +25,10 @@ class Thymio(object):
     def run(self):
 	self.loop.run()
 
+    def init_read(self):
+	self.thread=Thread(target=self.run)
+	self.thread.start()
+
     def open(self):
 	self.device="thymio-II"
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -32,20 +37,27 @@ class Thymio(object):
 	time.sleep(2)
         self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
 	node=self.network.GetNodesList()
-	print 'connecting .',
+	progress=0
+	print 'connecting: %d. \r'%progress,
 	while node==[]:
             self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
 	    node=self.network.GetNodesList()
-	    print '.',
+	    sys.stdout.write('connecting: %d. \r'% progress)
+	    sys.stdout.flush()
+	    progress+=1
 	print
 	print 'connected to %s.'%node
 	    
 
     def close(self):
 	print 'closing.'
+	time.sleep(2)
 	os.killpg(os.getpgid(self.aseba_proc.pid), signal.SIGTERM)
 
     def main_loop(self):
+	self.get_prox_sensors_val()
+	self.get_temperature()
+	self.get_accelerometer()
 	return True
 
     def get_prox_sensors_handler(self, r):
@@ -78,7 +90,6 @@ class Thymio(object):
     def quit(self):
 	self.halt()
 	self.loop.quit()
-	time.sleep(2)
 	self.close()
 
     def get_temperature(self):
