@@ -4,10 +4,7 @@ sys.path.append('..')
 import pythymiodw as tdw
 import time
 
-tdw.open()
 m=tdw.Thymio()
-print 'launching'
-time.sleep(1)
-print 'closing'
-tdw.close()
+time.sleep(2)
+m.close()
 

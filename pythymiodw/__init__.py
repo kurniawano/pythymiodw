@@ -2,10 +2,6 @@ import time
 import subprocess
 import os
 import signal
-#from robots import GenericRobot
-#from robots.decorators import action, lock
-#from robots.resources import Resource
-#from robots.signals import ActionCancelled
 
 import dbus
 import dbus.mainloop.glib
@@ -17,25 +13,11 @@ from optparse import OptionParser
 dt = 100
 aseba_proc=None
 
-def open():
-    global aseba_proc
-    #aseba_proc=subprocess.Popen(['asebamedulla "ser:name=Thymio-II"','--system'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)	
-    aseba_proc=subprocess.Popen(['asebamedulla "ser:name=Thymio-II"'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)	
-    time.sleep(1)
 
-def close():
-    os.killpg(os.getpgid(aseba_proc.pid), signal.SIGTERM)
 
 class Thymio(object):
     def __init__(self):
-        #super(Thymio,self).__init__()
-	#self.launch_asebamedulla()
-	self.device="thymio-II"
-        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        #self.bus=dbus.SystemBus()
-        self.bus=dbus.SessionBus()
-        self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
-	print self.network.GetNodesList()
+	self.open()
 	self.prox_sensors_val=[0,0,0,0,0,0,0]
 	self.accelerometer=[0,0,0]
 	self.temperature=0.0
@@ -44,6 +26,27 @@ class Thymio(object):
 
     def run(self):
 	self.loop.run()
+
+    def open(self):
+	self.device="thymio-II"
+        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+        self.bus=dbus.SessionBus()
+        self.aseba_proc=subprocess.Popen(['asebamedulla "ser:name=Thymio-II"'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)	
+	time.sleep(2)
+        self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
+	node=self.network.GetNodesList()
+	print 'connecting .',
+	while node==[]:
+            self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
+	    node=self.network.GetNodesList()
+	    print '.',
+	print
+	print 'connected to %s.'%node
+	    
+
+    def close(self):
+	print 'closing.'
+	os.killpg(os.getpgid(self.aseba_proc.pid), signal.SIGTERM)
 
     def main_loop(self):
 	return True
@@ -78,6 +81,8 @@ class Thymio(object):
     def quit(self):
 	self.halt()
 	self.loop.quit()
+	time.sleep(2)
+	self.close()
 
     def get_temperature(self):
 	self.network.GetVariable(self.device,"temperature", reply_handler=self.get_temperature_handler, error_handler=self.get_variables_error)
