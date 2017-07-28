@@ -11,9 +11,6 @@ from optparse import OptionParser
 
 #time step, 0.1 second
 dt = 100
-aseba_proc=None
-
-
 
 class Thymio(object):
     def __init__(self):
