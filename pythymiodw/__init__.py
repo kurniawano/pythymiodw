@@ -63,6 +63,17 @@ class Thymio(object):
 	self.get_accelerometer()
 	return True
 
+    def get(self, node, var):
+	dbus_array = self.network.GetVariable(node, var)
+	size = len(dbus_array)
+	if (size==1):
+	    return int(dbus_array[0])
+	else:
+	    return [int(dbus_array[x]) for x in range(0,size)]
+
+    def set(self, node, var, value):
+	self.network.SetVariable(node,var,value)
+
     def prox_sensors_handler(self, r):
 	self._prox_sensors_val=r
 
@@ -91,13 +102,12 @@ class Thymio(object):
 	return self._accelerometer
 
     def wheels(self,l,r):
-	self.network.SetVariable(self.device,"motor.left.target",[l])
-	self.network.SetVariable(self.device,"motor.right.target",[r])
-
+	self.set(self.device, "motor.left.target",[l])
+	self.set(self.device, "motor.right.target",[r])
 
     def halt(self):
-	self.network.SetVariable(self.device,"motor.left.target",[0])
-	self.network.SetVariable(self.device,"motor.right.target",[0])
+	self.set(self.device, "motor.left.target", [0])
+	self.set(self.device, "motor.right.target", [0])
 	
     def quit(self):
 	self.halt()
