@@ -21,6 +21,8 @@ class Thymio(object):
 	self._temperature=0.0
 	self.loop=gobject.MainLoop()
 	self.handle=gobject.timeout_add(dt, self.main_loop)
+	self.off_leds()
+	self.off_sounds()
 
     def run(self):
 	try:
@@ -50,6 +52,7 @@ class Thymio(object):
 	    progress+=1
 	print
 	print 'connected to %s.'%node
+	self.network.LoadScripts(os.path.dirname(os.path.realpath(__file__))+'/thymiohandlers.aesl')
 	    
 
     def close(self):
@@ -73,6 +76,59 @@ class Thymio(object):
 
     def set(self, node, var, value):
 	self.network.SetVariable(node,var,value)
+
+    def send_event_name(self, event_name, event_args):
+	self.network.SendEventName(event_name, event_args, reply_handler=self.dbus_reply, error_handler=self.dbus_error)
+
+    def leds_top(self,r=0,g=0,b=0):
+	self.send_event_name('SetLEDsTop', [r,g,b])
+
+    def leds_circle(self,led0=0, led1=0, led2=0, led3=0, led4=0, led5=0, led6=0, led7=0):
+	self.send_event_name('SetLEDsCircle', [led0, led1, led2, led3, led4, led5, led6, led7])
+
+    def leds_buttons(self,led0=0, led1=0, led2=0, led3=0):
+	self.send_event_name('SetLEDsButtons', [led0, led1, led2, led3])
+
+    def leds_prox_h(self,led0=0, led1=0, led2=0, led3=0, led4=0, led5=0, led6=0, led7=0):
+	self.send_event_name('SetLEDsProxH', [led0, led1, led2, led3, led4, led5, led6, led7])
+
+    def leds_prox_v(self,led0=0, led1=0, led2=0, led3=0, led4=0, led5=0, led6=0, led7=0):
+	self.send_event_name('SetLEDsProxV', [led0, led1, led2, led3, led4, led5, led6, led7])
+
+    def leds_rc(self,led=0):
+	self.send_event_name('SetLEDsRC', [led])
+
+    def leds_bottom_left(self,r=0,g=0,b=0):
+	self.send_event_name('SetLEDsBottomLeft', [r,g,b])
+
+    def leds_bottom_right(self,r=0,g=0,b=0):
+	self.send_event_name('SetLEDsBottomRight', [r,g,b])
+
+    def leds_temperature(self,r=0,b=0):
+	self.send_event_name('SetLEDsTemperature', [r,b])
+
+    def leds_sound(self,led=0):
+	self.send_event_name('SetLEDsSound', [led])
+
+    def sound_system(self,n=0):
+	self.send_event_name('SetSoundSystem', [n])
+
+    def sound_freq(self,hz=0, ds=0):
+	self.send_event_name('SetSoundFreq', [hz,ds])
+
+    def sound_play(self,n=0):
+	self.send_event_name('SetSoundPlay', [n])
+
+    def sound_replay(self,n=0):
+	self.send_event_name('SetSoundReplay', [n])
+
+    def dbus_reply(self):
+	pass
+
+    def dbus_error(self, e):
+        print 'error:'
+	print str(e)
+	self.loop.quit()
 
     def prox_sensors_handler(self, r):
 	self._prox_sensors_val=r
@@ -109,8 +165,28 @@ class Thymio(object):
 	self.set(self.device, "motor.left.target", [0])
 	self.set(self.device, "motor.right.target", [0])
 	
+    def off_leds(self):
+	self.leds_top()
+	self.leds_circle()
+	self.leds_buttons()
+	self.leds_prox_h()
+	self.leds_prox_v()
+	self.leds_rc()
+	self.leds_bottom_left()
+	self.leds_bottom_right()
+	self.leds_temperature()
+	self.leds_sound()
+
+    def off_sounds(self):
+	self.sound_system(-1)
+	self.sound_freq()
+	self.sound_play(-1)
+	self.sound_replay(-1)
+
     def quit(self):
 	self.halt()
+	self.off_leds()
+	self.off_sounds()
 	self.loop.quit()
 	self.close()
 

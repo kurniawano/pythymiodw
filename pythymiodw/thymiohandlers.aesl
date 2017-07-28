@@ -1,0 +1,77 @@
+<!DOCTYPE aesl-source>
+<network>
+
+
+<!--list of global events-->
+<event size="3" name="SetLEDsTop"/>
+<event size="8" name="SetLEDsCircle"/>
+<event size="4" name="SetLEDsButtons"/>
+<event size="8" name="SetLEDsProxH"/>
+<event size="2" name="SetLEDsProxV"/>
+<event size="1" name="SetLEDsRC"/>
+<event size="3" name="SetLEDsBottomLeft"/>
+<event size="3" name="SetLEDsBottomRight"/>
+<event size="2" name="SetLEDsTemperature"/>
+<event size="1" name="SetLEDsSound"/>
+<event size="1" name="SetSoundSystem"/>
+<event size="2" name="SetSoundFreq"/>
+<event size="1" name="SetSoundPlay"/>
+<event size="1" name="SetSoundReplay"/>
+
+
+<!--list of constants-->
+
+
+<!--show keywords state-->
+<keywords flag="true"/>
+
+
+<!--node thymio-II-->
+<node nodeId="65082" name="thymio-II">onevent SetLEDsTop
+call leds.top(event.args[0], event.args[1], event.args[2])
+
+onevent SetLEDsCircle
+call leds.circle(event.args[0], event.args[1], event.args[2], event.args[3], event.args[4], event.args[5], event.args[6], event.args[7])
+
+onevent SetLEDsButtons
+call leds.buttons(event.args[0], event.args[1], event.args[2], event.args[3])
+
+onevent SetLEDsProxH
+call leds.prox.h(event.args[0], event.args[1], event.args[2], event.args[3], event.args[4], event.args[5], event.args[6], event.args[7])
+
+onevent SetLEDsProxV
+call leds.prox.v(event.args[0], event.args[1])
+
+onevent SetLEDsRC
+call leds.rc(event.args[0])
+
+onevent SetLEDsBottomLeft
+call leds.bottom.left(event.args[0], event.args[1], event.args[2])
+
+onevent SetLEDsBottomRight
+call leds.bottom.right(event.args[0], event.args[1], event.args[2])
+
+onevent SetLEDsTemperature
+call leds.temperature(event.args[0], event.args[1])
+
+onevent SetLEDsSound
+call leds.sound(event.args[0])
+
+onevent SetSoundSystem
+call sound.system(event.args[0])
+
+onevent SetSoundFreq
+call sound.system(event.args[0])
+
+onevent SetSoundPlay
+call sound.play(event.args[0])
+
+onevent SetSoundReplay
+call sound.replay(event.args[0])
+
+
+
+</node>
+
+
+</network>
