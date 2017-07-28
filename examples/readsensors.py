@@ -12,7 +12,10 @@ class MyRobot(Thymio):
 	time.sleep(1)
 	return True
 
-m=MyRobot()
-m.run()
+try:
+    m=MyRobot()
+    m.run()
+except:
+    m.quit()
 
 

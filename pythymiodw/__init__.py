@@ -16,14 +16,17 @@ dt = 100
 class Thymio(object):
     def __init__(self):
 	self.open()
-	self.prox_sensors_val=[0,0,0,0,0,0,0]
-	self.accelerometer=[0,0,0]
-	self.temperature=0.0
+	self._prox_sensors_val=[0,0,0,0,0,0,0]
+	self._accelerometer=[0,0,0]
+	self._temperature=0.0
 	self.loop=gobject.MainLoop()
 	self.handle=gobject.timeout_add(dt, self.main_loop)
 
     def run(self):
-	self.loop.run()
+	try:
+	    self.loop.run()
+	except:
+	    self.quit()
 
     def init_read(self):
 	self.thread=Thread(target=self.run)
@@ -60,14 +63,14 @@ class Thymio(object):
 	self.get_accelerometer()
 	return True
 
-    def get_prox_sensors_handler(self, r):
-	self.prox_sensors_val=r
+    def prox_sensors_handler(self, r):
+	self._prox_sensors_val=r
 
-    def get_acc_handler(self, r):
-	self.accelerometer=r
+    def acc_handler(self, r):
+	self._accelerometer=r
 
-    def get_temperature_handler(self, r):
-	self.temperature=r
+    def temperature_handler(self, r):
+	self._temperature=r
 
     def get_variables_error(self, e):
         print 'error:'
@@ -75,8 +78,17 @@ class Thymio(object):
 	self.loop.quit()
 
     def get_prox_sensors_val(self):
-	self.network.GetVariable(self.device,"prox.horizontal", reply_handler=self.get_prox_sensors_handler, error_handler=self.get_variables_error)
-	return self.prox_sensors_val
+	self.network.GetVariable(self.device,"prox.horizontal", reply_handler=self.prox_sensors_handler, error_handler=self.get_variables_error)
+	return self._prox_sensors_val
+
+    def read_prox_sensors_val(self):
+	return self._prox_sensors_val
+
+    def read_temperature(self):
+	return self._temperature
+
+    def read_accelerometer(self):
+	return self._accelerometer
 
     def wheels(self,l,r):
 	self.network.SetVariable(self.device,"motor.left.target",[l])
@@ -93,9 +105,13 @@ class Thymio(object):
 	self.close()
 
     def get_temperature(self):
-	self.network.GetVariable(self.device,"temperature", reply_handler=self.get_temperature_handler, error_handler=self.get_variables_error)
-	return self.temperature
+	self.network.GetVariable(self.device,"temperature", reply_handler=self.temperature_handler, error_handler=self.get_variables_error)
+	return self._temperature
 
     def get_accelerometer(self):
-	self.network.GetVariable(self.device,"acc", reply_handler=self.get_acc_handler, error_handler=self.get_variables_error)
-	return self.accelerometer
+	self.network.GetVariable(self.device,"acc", reply_handler=self.acc_handler, error_handler=self.get_variables_error)
+	return self._accelerometer
+
+    prox_sensors_val=property(read_prox_sensors_val)
+    temperature=property(read_temperature)
+    accelerometer=property(read_accelerometer)
