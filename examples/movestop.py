@@ -1,5 +1,5 @@
 import sys
-sys.path.append('..')
+#sys.path.append('..')
 from pythymiodw import Thymio
 
 m=Thymio()
@@ -9,7 +9,7 @@ while(1):
     data=m.prox_sensors_val
     front=data[2]
     print front
-    if front>3000:
+    if front>2000:
 	m.quit()
 	break
 

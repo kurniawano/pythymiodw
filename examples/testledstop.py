@@ -1,6 +1,6 @@
 import sys
 import time
-sys.path.append('..')
+#sys.path.append('..')
 from pythymiodw import Thymio
 
 m = Thymio()
