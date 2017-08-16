@@ -1,9 +1,17 @@
-from .. import Thymio
+from .. import *
 from ..io import Input
 import copy
 
+base_class = ThymioReal
 
-class ThymioEnv(Thymio):
+def set_base(base=ThymioReal):
+    global base_class 
+    base_class = base
+
+def set_base_simulator():
+    set_base(ThymioSim)
+
+class ThymioSM(base_class):
     def __init__(self,MySM):
 	Thymio.__init__(self)
 	self.behaviour=MySM
@@ -20,10 +28,7 @@ class ThymioEnv(Thymio):
 	output=self.behaviour.step(self.input)
 	self.move(output)
 	return True
-    def move(self,output):
-	pass
 
-class ThymioPhysical(ThymioEnv):
     def move(self, output):
 	self.wheels(output.leftv,output.rightv)
 

@@ -2,7 +2,7 @@ import sys
 #sys.path.append('..')
 
 from pythymiodw import io
-from pythymiodw.env import ThymioSM
+from pythymiodw.sm import ThymioSM
 from libdw import sm
 
 
