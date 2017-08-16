@@ -1,0 +1,8 @@
+<!DOCTYPE aseba-playground>
+<aseba-playground>
+	<color name="wall" r="0.9" g="0.9" b="0.9"/>
+
+	<world w="110.4" h="110.4" color="wall"/>
+
+	<thymio2 x="40" y="40"/>
+</aseba-playground>
