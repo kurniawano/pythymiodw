@@ -1,9 +1,9 @@
 import sys
 import time
 #sys.path.append('..')
-from pythymiodw import Thymio
+from pythymiodw import ThymioReal
 
-m=Thymio()
+m=ThymioReal()
 m.init_read()
 for i in range(4):
     m.wheels(100,100)

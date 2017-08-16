@@ -19,21 +19,160 @@ class Thymio(object):
 	self._prox_sensors_val=[0,0,0,0,0,0,0]
 	self._accelerometer=[0,0,0]
 	self._temperature=0.0
-	self.loop=gobject.MainLoop()
-	self.handle=gobject.timeout_add(dt, self.main_loop)
 	self.off_leds()
 	self.off_sounds()
 
     def run(self):
 	try:
-	    self.loop.run()
+	    self._run()
 	except:
 	    self.quit()
+
+    def _run(self):
+	pass
 
     def init_read(self):
 	self.thread=Thread(target=self.run)
 	self.thread.start()
 
+    def open(self):
+	pass    
+
+    def close(self):
+	print 'closing.'
+	time.sleep(2)
+
+    def main_loop(self):
+	self.get_prox_sensors_val()
+	self.get_temperature()
+	self.get_accelerometer()
+	return True
+
+    def leds_top(self,r=0,g=0,b=0):
+	pass
+
+    def leds_circle(self,led0=0, led1=0, led2=0, led3=0, led4=0, led5=0, led6=0, led7=0):
+	pass
+
+    def leds_buttons(self,led0=0, led1=0, led2=0, led3=0):
+	pass
+
+    def leds_prox_h(self,led0=0, led1=0, led2=0, led3=0, led4=0, led5=0, led6=0, led7=0):
+	pass
+
+    def leds_prox_v(self,led0=0, led1=0, led2=0, led3=0, led4=0, led5=0, led6=0, led7=0):
+	pass
+
+    def leds_rc(self,led=0):
+	pass
+
+    def leds_bottom_left(self,r=0,g=0,b=0):
+	pass
+
+    def leds_bottom_right(self,r=0,g=0,b=0):
+	pass
+
+    def leds_temperature(self,r=0,b=0):
+	pass
+
+    def leds_sound(self,led=0):
+	pass
+
+    def sound_system(self,n=0):
+	pass
+
+    def sound_freq(self,hz=0, ds=0):
+	pass
+
+    def sound_play(self,n=0):
+	pass
+
+    def sound_replay(self,n=0):
+	pass
+
+    def dbus_reply(self):
+	pass
+
+    def dbus_error(self, e):
+        print 'error:'
+	print str(e)
+
+    def prox_sensors_handler(self, r):
+	self._prox_sensors_val=r
+
+    def acc_handler(self, r):
+	self._accelerometer=r
+
+    def temperature_handler(self, r):
+	self._temperature=r
+
+    def get_variables_error(self, e):
+        print 'error:'
+	print str(e)
+
+    def get_prox_sensors_val(self):
+	pass
+
+    def read_prox_sensors_val(self):
+	return self._prox_sensors_val
+
+    def read_temperature(self):
+	return self._temperature
+
+    def read_accelerometer(self):
+	return self._accelerometer
+
+    def wheels(self,l,r):
+	self._wheels(l,r)
+
+    def _wheels(self,l,r):
+	pass
+
+    def halt(self):
+	self._halt()
+
+    def _halt(self):
+	pass
+	
+    def off_leds(self):
+	self.leds_top()
+	self.leds_circle()
+	self.leds_buttons()
+	self.leds_prox_h()
+	self.leds_prox_v()
+	self.leds_rc()
+	self.leds_bottom_left()
+	self.leds_bottom_right()
+	self.leds_temperature()
+	self.leds_sound()
+
+    def off_sounds(self):
+	self.sound_system(-1)
+	self.sound_freq()
+	self.sound_play(-1)
+	self.sound_replay(-1)
+
+    def quit(self):
+	self.halt()
+	self.off_leds()
+	self.off_sounds()
+	self.quit_loop()
+	self.close()
+
+    def quit_loop(self):
+	pass
+
+    def get_temperature(self):
+	pass
+
+    def get_accelerometer(self):
+	pass
+
+    prox_sensors_val=property(read_prox_sensors_val)
+    temperature=property(read_temperature)
+    accelerometer=property(read_accelerometer)
+
+class ThymioReal(Thymio):
     def open(self):
 	self.device="thymio-II"
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -53,18 +192,15 @@ class Thymio(object):
 	print
 	print 'connected to %s.'%node
 	self.network.LoadScripts(os.path.dirname(os.path.realpath(__file__))+'/thymiohandlers.aesl')
-	    
+	self.loop=gobject.MainLoop()
+	self.handle=gobject.timeout_add(dt, self.main_loop)
 
     def close(self):
-	print 'closing.'
-	time.sleep(2)
+	Thymio.close(self)
 	os.killpg(os.getpgid(self.aseba_proc.pid), signal.SIGTERM)
 
-    def main_loop(self):
-	self.get_prox_sensors_val()
-	self.get_temperature()
-	self.get_accelerometer()
-	return True
+    def _run(self):
+        self.loop.run()
 
     def get(self, node, var):
 	dbus_array = self.network.GetVariable(node, var)
@@ -126,69 +262,17 @@ class Thymio(object):
 	pass
 
     def dbus_error(self, e):
-        print 'error:'
-	print str(e)
-	self.loop.quit()
+	Thymio.dbus_error(self,e)
+	self.quit()
 
-    def prox_sensors_handler(self, r):
-	self._prox_sensors_val=r
-
-    def acc_handler(self, r):
-	self._accelerometer=r
-
-    def temperature_handler(self, r):
-	self._temperature=r
 
     def get_variables_error(self, e):
-        print 'error:'
-	print str(e)
-	self.loop.quit()
+	Thymio.get_variables_error(self,e)
+	self.quit()
 
     def get_prox_sensors_val(self):
 	self.network.GetVariable(self.device,"prox.horizontal", reply_handler=self.prox_sensors_handler, error_handler=self.get_variables_error)
 	return self._prox_sensors_val
-
-    def read_prox_sensors_val(self):
-	return self._prox_sensors_val
-
-    def read_temperature(self):
-	return self._temperature
-
-    def read_accelerometer(self):
-	return self._accelerometer
-
-    def wheels(self,l,r):
-	self.set(self.device, "motor.left.target",[l])
-	self.set(self.device, "motor.right.target",[r])
-
-    def halt(self):
-	self.set(self.device, "motor.left.target", [0])
-	self.set(self.device, "motor.right.target", [0])
-	
-    def off_leds(self):
-	self.leds_top()
-	self.leds_circle()
-	self.leds_buttons()
-	self.leds_prox_h()
-	self.leds_prox_v()
-	self.leds_rc()
-	self.leds_bottom_left()
-	self.leds_bottom_right()
-	self.leds_temperature()
-	self.leds_sound()
-
-    def off_sounds(self):
-	self.sound_system(-1)
-	self.sound_freq()
-	self.sound_play(-1)
-	self.sound_replay(-1)
-
-    def quit(self):
-	self.halt()
-	self.off_leds()
-	self.off_sounds()
-	self.loop.quit()
-	self.close()
 
     def get_temperature(self):
 	self.network.GetVariable(self.device,"temperature", reply_handler=self.temperature_handler, error_handler=self.get_variables_error)
@@ -198,6 +282,14 @@ class Thymio(object):
 	self.network.GetVariable(self.device,"acc", reply_handler=self.acc_handler, error_handler=self.get_variables_error)
 	return self._accelerometer
 
-    prox_sensors_val=property(read_prox_sensors_val)
-    temperature=property(read_temperature)
-    accelerometer=property(read_accelerometer)
+
+    def _wheels(self,l,r):
+	self.set(self.device, "motor.left.target",[l])
+	self.set(self.device, "motor.right.target",[r])
+
+    def _halt(self):
+	self.set(self.device, "motor.left.target", [0])
+	self.set(self.device, "motor.right.target", [0])
+
+    def quit_loop(self):
+	self.loop.quit()

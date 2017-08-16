@@ -4,7 +4,7 @@ import sys
 from pythymiodw import *
 import time
 
-class MyRobot(Thymio):
+class MyRobot(ThymioReal):
     def main_loop(self):
 	print m.get_temperature()
 	time.sleep(1)

@@ -5,7 +5,7 @@ from pythymiodw import *
 import time
 
 
-m=Thymio()
+m=ThymioReal()
 m.init_read()
 m.wheels(300,300)
 time.sleep(1)

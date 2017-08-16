@@ -2,7 +2,7 @@ import sys
 #sys.path.append('..')
 
 from pythymiodw import io
-from pythymiodw.env import ThymioPhysical
+from pythymiodw.env import ThymioSM
 from libdw import sm
 
 
@@ -17,7 +17,7 @@ MySM=TestRead()
 
 ############################
 
-m=ThymioPhysical(MySM)
+m=ThymioSM(MySM)
 try:
     m.run()
 except:

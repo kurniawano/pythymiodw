@@ -1,9 +1,9 @@
 import sys
 import time
 #sys.path.append('..')
-from pythymiodw import Thymio
+from pythymiodw import ThymioReal
 
-m=Thymio()
+m=ThymioReal()
 m.init_read()
 print 'sound.system(7)'
 m.sound_system(7)

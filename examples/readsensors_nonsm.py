@@ -1,11 +1,11 @@
 import sys
 #sys.path.append('..')
 
-from pythymiodw import Thymio
+from pythymiodw import ThymioReal
 import time
 
 
-m=Thymio()
+m=ThymioReal()
 m.init_read()
 print m.prox_sensors_val
 print m.temperature

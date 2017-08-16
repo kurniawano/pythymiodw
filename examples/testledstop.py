@@ -1,9 +1,9 @@
 import sys
 import time
 #sys.path.append('..')
-from pythymiodw import Thymio
+from pythymiodw import ThymioReal
 
-m = Thymio()
+m = ThymioReal()
 m.init_read()
 print 'color top 1'
 m.leds_top(0,0,32)
