@@ -26,6 +26,7 @@ setup(
         ],
     keywords='robot library education',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    install_requries=['libdw'],
     package_data={
         'pythymiodw':['thymiohandlers.aesl'],
         },
