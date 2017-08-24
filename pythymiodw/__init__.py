@@ -16,7 +16,10 @@ dt = 100
 class Thymio(object):
     def __init__(self):
 	self.open()
-	self._prox_horizontal_val=[0,0,0,0,0,0,0]
+	self._prox_horizontal=[0,0,0,0,0,0,0]
+	self._prox_ground_delta=[0,0]
+	self._prox_ground_reflected=[0,0]
+	self._prox_ground_ambiant=[0,0]
 	self._accelerometer=[0,0,0]
 	self._temperature=0.0
 	self.off_leds()
@@ -43,7 +46,8 @@ class Thymio(object):
 	time.sleep(2)
 
     def main_loop(self):
-	self.get_prox_horizontal_val()
+	self.get_prox_horizontal()
+	self.get_prox_ground()
 	self.get_temperature()
 	self.get_accelerometer()
 	return True
@@ -98,7 +102,16 @@ class Thymio(object):
 	print str(e)
 
     def prox_horizontal_handler(self, r):
-	self._prox_horizontal_val=r
+	self._prox_horizontal=r
+
+    def prox_ground_delta_handler(self, r):
+	self._prox_ground_delta=r
+
+    def prox_ground_reflected_handler(self, r):
+	self._prox_ground_reflected=r
+
+    def prox_ground_ambiant_handler(self, r):
+	self._prox_ground_ambiant=r
 
     def acc_handler(self, r):
 	self._accelerometer=r
@@ -110,11 +123,29 @@ class Thymio(object):
         print 'error:'
 	print str(e)
 
-    def get_prox_horizontal_val(self):
+    def get_prox_horizontal(self):
 	pass
 
-    def read_prox_horizontal_val(self):
-	return self._prox_horizontal_val
+    def get_prox_ground_delta(self):
+	pass
+
+    def get_prox_ground_reflected(self):
+	pass
+
+    def get_prox_ground_ambiant(self):
+	pass
+
+    def get_prox_ground(self):
+	self.get_prox_ground_delta()
+	self.get_prox_ground_reflected()
+	self.get_prox_ground_ambiant()
+	return self._prox_ground_delta, self._prox_ground_reflected, self._prox_ground_ambiant
+
+    def read_prox_horizontal(self):
+	return self._prox_horizontal
+
+    def read_prox_ground(self):
+	return self._prox_ground_delta, self._prox_ground_reflected, self._prox_ground_ambiant
 
     def read_temperature(self):
 	return self._temperature
@@ -168,7 +199,8 @@ class Thymio(object):
     def get_accelerometer(self):
 	pass
 
-    prox_horizontal_val=property(read_prox_horizontal_val)
+    prox_horizontal=property(read_prox_horizontal)
+    prox_ground=property(read_prox_ground)
     temperature=property(read_temperature)
     accelerometer=property(read_accelerometer)
 
@@ -270,9 +302,21 @@ class ThymioReal(Thymio):
 	Thymio.get_variables_error(self,e)
 	self.quit()
 
-    def get_prox_horizontal_val(self):
+    def get_prox_horizontal(self):
 	self.network.GetVariable(self.device,"prox.horizontal", reply_handler=self.prox_horizontal_handler, error_handler=self.get_variables_error)
-	return self._prox_horizontal_val
+	return self._prox_horizontal
+
+    def get_prox_ground_delta(self):
+	self.network.GetVariable(self.device,"prox.ground.delta", reply_handler=self.prox_ground_delta_handler, error_handler=self.get_variables_error)
+	return self._prox_ground_delta
+
+    def get_prox_ground_reflected(self):
+	self.network.GetVariable(self.device,"prox.ground.reflected", reply_handler=self.prox_ground_reflected_handler, error_handler=self.get_variables_error)
+	return self._prox_ground_reflected
+
+    def get_prox_ground_ambiant(self):
+	self.network.GetVariable(self.device,"prox.ground.ambiant", reply_handler=self.prox_ground_ambiant_handler, error_handler=self.get_variables_error)
+	return self._prox_ground_ambiant
 
     def get_temperature(self):
 	self.network.GetVariable(self.device,"temperature", reply_handler=self.temperature_handler, error_handler=self.get_variables_error)

@@ -7,11 +7,13 @@ import time
 
 m=ThymioReal()
 m.init_read()
-print m.prox_horizontal_val
+print m.prox_horizontal
+print m.prox_ground
 print m.temperature
 print m.accelerometer
 time.sleep(1)
-print m.prox_horizontal_val
+print m.prox_horizontal
+print m.prox_ground
 print m.temperature
 print m.accelerometer
 m.quit()

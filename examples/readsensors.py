@@ -8,7 +8,8 @@ class MyRobot(ThymioReal):
     def main_loop(self):
 	print m.get_temperature()
 	time.sleep(1)
-	print m.get_prox_horizontal_val()
+	print m.get_prox_horizontal()
+	print m.get_prox_ground()
 	time.sleep(1)
 	return True
 
