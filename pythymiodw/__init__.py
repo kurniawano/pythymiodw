@@ -16,7 +16,7 @@ dt = 100
 class Thymio(object):
     def __init__(self):
 	self.open()
-	self._prox_sensors_val=[0,0,0,0,0,0,0]
+	self._prox_horizontal_val=[0,0,0,0,0,0,0]
 	self._accelerometer=[0,0,0]
 	self._temperature=0.0
 	self.off_leds()
@@ -43,7 +43,7 @@ class Thymio(object):
 	time.sleep(2)
 
     def main_loop(self):
-	self.get_prox_sensors_val()
+	self.get_prox_horizontal_val()
 	self.get_temperature()
 	self.get_accelerometer()
 	return True
@@ -97,8 +97,8 @@ class Thymio(object):
         print 'error:'
 	print str(e)
 
-    def prox_sensors_handler(self, r):
-	self._prox_sensors_val=r
+    def prox_horizontal_handler(self, r):
+	self._prox_horizontal_val=r
 
     def acc_handler(self, r):
 	self._accelerometer=r
@@ -110,11 +110,11 @@ class Thymio(object):
         print 'error:'
 	print str(e)
 
-    def get_prox_sensors_val(self):
+    def get_prox_horizontal_val(self):
 	pass
 
-    def read_prox_sensors_val(self):
-	return self._prox_sensors_val
+    def read_prox_horizontal_val(self):
+	return self._prox_horizontal_val
 
     def read_temperature(self):
 	return self._temperature
@@ -168,7 +168,7 @@ class Thymio(object):
     def get_accelerometer(self):
 	pass
 
-    prox_sensors_val=property(read_prox_sensors_val)
+    prox_horizontal_val=property(read_prox_horizontal_val)
     temperature=property(read_temperature)
     accelerometer=property(read_accelerometer)
 
@@ -270,9 +270,9 @@ class ThymioReal(Thymio):
 	Thymio.get_variables_error(self,e)
 	self.quit()
 
-    def get_prox_sensors_val(self):
-	self.network.GetVariable(self.device,"prox.horizontal", reply_handler=self.prox_sensors_handler, error_handler=self.get_variables_error)
-	return self._prox_sensors_val
+    def get_prox_horizontal_val(self):
+	self.network.GetVariable(self.device,"prox.horizontal", reply_handler=self.prox_horizontal_handler, error_handler=self.get_variables_error)
+	return self._prox_horizontal_val
 
     def get_temperature(self):
 	self.network.GetVariable(self.device,"temperature", reply_handler=self.temperature_handler, error_handler=self.get_variables_error)
