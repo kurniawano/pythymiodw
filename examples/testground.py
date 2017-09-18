@@ -9,10 +9,10 @@ from libdw import sm
 
 class TestRead(sm.SM):
     def getNextValues(self,state, inp):
-	print(inp.prox_ground)
-	#print inp.temperature
-	#print inp.accelerometer
-	return state, io.Action(fv=0.05,rv=0)
+	print('Delta:',inp.prox_ground.delta)
+	print('Reflected:',inp.prox_ground.reflected)
+	print('Ambient:',inp.prox_ground.ambiant)
+	return state, io.Action(fv=0.00,rv=0)
 	
 MySM=TestRead()
 

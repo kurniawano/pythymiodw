@@ -10,6 +10,7 @@ import dbus.mainloop.glib
 import gobject
 from optparse import OptionParser
 from threading import Thread
+from io import ProxGround
 
 #time step, 0.1 second
 dt = 100
@@ -140,13 +141,13 @@ class Thymio(object):
 	self.get_prox_ground_delta()
 	self.get_prox_ground_reflected()
 	self.get_prox_ground_ambiant()
-	return self._prox_ground_delta, self._prox_ground_reflected, self._prox_ground_ambiant
+	return ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
 
     def read_prox_horizontal(self):
 	return self._prox_horizontal
 
     def read_prox_ground(self):
-	return self._prox_ground_delta, self._prox_ground_reflected, self._prox_ground_ambiant
+	return ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
 
     def read_temperature(self):
 	return self._temperature

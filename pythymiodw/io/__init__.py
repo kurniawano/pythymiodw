@@ -20,7 +20,12 @@ class Action(object):
 class Input(object):
     def __init__(self):
 	self.prox_horizontal=[0.0 for i in range(7)]
-	self.prox_ground=([0.0 for i in range(2)] for j in range(3))
+	self.prox_ground=ProxGround()
 	self.temperature=0.0
 	self.accelerometer=[0.0,0.0,0.0]
 
+class ProxGround(object):
+    def __init__(self,delta=[0.0,0.0],reflected=[0.0,0.0],ambiant=[0.0,0.0]):
+        self.delta=delta
+	self.reflected=reflected
+	self.ambiant=ambiant

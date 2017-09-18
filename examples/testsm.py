@@ -10,7 +10,7 @@ from libdw import sm
 class TestRead(sm.SM):
     def getNextValues(self,state, inp):
 	print(inp.prox_horizontal[2])
-	print(inp.prox_ground[2])
+	print(inp.prox_ground.delta)
 	#print inp.temperature
 	#print inp.accelerometer
 	return state, io.Action(fv=0.00,rv=0)
