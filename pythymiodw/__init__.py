@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 import subprocess
 import os
@@ -42,7 +43,7 @@ class Thymio(object):
 	pass    
 
     def close(self):
-	print 'closing.'
+	print('closing.')
 	time.sleep(2)
 
     def main_loop(self):
@@ -98,8 +99,8 @@ class Thymio(object):
 	pass
 
     def dbus_error(self, e):
-        print 'error:'
-	print str(e)
+        print('error:')
+	print(str(e))
 
     def prox_horizontal_handler(self, r):
 	self._prox_horizontal=r
@@ -120,8 +121,8 @@ class Thymio(object):
 	self._temperature=r
 
     def get_variables_error(self, e):
-        print 'error:'
-	print str(e)
+        print('error:')
+	print(str(e))
 
     def get_prox_horizontal(self):
 	pass
@@ -214,15 +215,15 @@ class ThymioReal(Thymio):
         self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
 	node=self.network.GetNodesList()
 	progress=0
-	print 'connecting: %d. \r'%progress,
+	print('connecting: {:d}. \r'.format(progress),end='')
 	while node==[]:
             self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
 	    node=self.network.GetNodesList()
 	    sys.stdout.write('connecting: %d. \r'% progress)
 	    sys.stdout.flush()
 	    progress+=1
-	print
-	print 'connected to %s.'%node
+	print()
+	print('connected to {:s}.'.format(node))
 	self.network.LoadScripts(os.path.dirname(os.path.realpath(__file__))+'/thymiohandlers.aesl')
 	self.loop=gobject.MainLoop()
 	self.handle=gobject.timeout_add(dt, self.main_loop)

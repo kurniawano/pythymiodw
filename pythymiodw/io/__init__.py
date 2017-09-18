@@ -19,7 +19,8 @@ class Action(object):
 
 class Input(object):
     def __init__(self):
-	self.proximity=[0.0 for i in range(7)]
+	self.prox_horizontal=[0.0 for i in range(7)]
+	self.prox_ground=([0.0 for i in range(2)] for j in range(3))
 	self.temperature=0.0
 	self.accelerometer=[0.0,0.0,0.0]
 
