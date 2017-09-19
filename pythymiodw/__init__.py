@@ -104,7 +104,8 @@ class Thymio(object):
 	print(str(e))
 
     def prox_horizontal_handler(self, r):
-	self._prox_horizontal=r
+	dist=[int(x) for x in r]
+	self._prox_horizontal=dist
 
     def prox_ground_delta_handler(self, r):
 	self._prox_ground_delta=r
@@ -119,7 +120,8 @@ class Thymio(object):
 	self._accelerometer=r
 
     def temperature_handler(self, r):
-	self._temperature=r
+	t=[int(x) for x in r]
+	self._temperature=t[0]/10.0
 
     def get_variables_error(self, e):
         print('error:')
