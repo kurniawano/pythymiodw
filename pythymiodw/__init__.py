@@ -215,7 +215,7 @@ class ThymioReal(Thymio):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.bus=dbus.SessionBus()
         self.aseba_proc=subprocess.Popen(['asebamedulla "ser:name=Thymio-II"'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)	
-	time.sleep(2)
+        time.sleep(2)
         self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
         node=self.network.GetNodesList()
         progress=0
@@ -341,9 +341,9 @@ class ThymioReal(Thymio):
         self.set(self.device, "motor.right.target", [0])
 
     def quit_loop(self):
-	self.loop.quit()
+        self.loop.quit()
 
 class ThymioSim(Thymio):
     def open(self):
-	self.window=turtle.Screen()
-	self.robot=turtle.Turtle()
+        self.window=turtle.Screen()
+        self.robot=turtle.Turtle()
