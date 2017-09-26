@@ -13,7 +13,7 @@ import dbus.mainloop.glib
 from gi.repository import GObject as gobject
 from optparse import OptionParser
 from threading import Thread
-from . import io as ProxGround
+from . import io 
 
 #time step, 0.1 second
 dt = 100
@@ -146,13 +146,13 @@ class Thymio(object):
         self.get_prox_ground_delta()
         self.get_prox_ground_reflected()
         self.get_prox_ground_ambiant()
-        return ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
+        return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
 
     def read_prox_horizontal(self):
         return self._prox_horizontal
 
     def read_prox_ground(self):
-        return ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
+        return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
 
     def read_temperature(self):
         return self._temperature
@@ -229,7 +229,7 @@ class ThymioReal(Thymio):
             sys.stdout.flush()
             progress+=1
         print()
-        print('connected to {:s}.'.format(node))
+        print('connected to {!s:s}.'.format(node))
         self.network.LoadScripts(os.path.dirname(os.path.realpath(__file__))+'/thymiohandlers.aesl')
         self.loop=gobject.MainLoop()
         self.handle=gobject.timeout_add(dt, self.main_loop)
