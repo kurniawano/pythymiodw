@@ -4,6 +4,7 @@ import subprocess
 import os
 import sys
 import signal
+import turtle
 
 import dbus
 import dbus.mainloop.glib
@@ -341,3 +342,8 @@ class ThymioReal(Thymio):
 
     def quit_loop(self):
 	self.loop.quit()
+
+class ThymioSim(Thymio):
+    def open(self):
+	self.window=turtle.Screen()
+	self.robot=turtle.Turtle()
