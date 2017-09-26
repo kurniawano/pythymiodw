@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import time
 import subprocess
 import os
@@ -8,10 +9,11 @@ import turtle
 
 import dbus
 import dbus.mainloop.glib
-import gobject
+#import gobject
+from gi.repository import GObject as gobject
 from optparse import OptionParser
 from threading import Thread
-from io import ProxGround
+from . import io as ProxGround
 
 #time step, 0.1 second
 dt = 100
