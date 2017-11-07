@@ -111,16 +111,20 @@ class Thymio(object):
         self._prox_horizontal=dist
 
     def prox_ground_delta_handler(self, r):
-        self._prox_ground_delta=r
+        t=[int(x) for x in r]
+        self._prox_ground_delta=t
 
     def prox_ground_reflected_handler(self, r):
-        self._prox_ground_reflected=r
+        t=[int(x) for x in r]
+        self._prox_ground_reflected=t
 
     def prox_ground_ambiant_handler(self, r):
-        self._prox_ground_ambiant=r
+        t=[int(x) for x in r]
+        self._prox_ground_ambiant=t
 
     def acc_handler(self, r):
-        self._accelerometer=r
+        t=[int(x) for x in r]
+        self._accelerometer=t
 
     def temperature_handler(self, r):
         t=[int(x) for x in r]
@@ -171,7 +175,7 @@ class Thymio(object):
 
     def _halt(self):
         pass
-	
+    
     def off_leds(self):
         self.leds_top()
         self.leds_circle()
@@ -216,7 +220,7 @@ class ThymioReal(Thymio):
         self.device="thymio-II"
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.bus=dbus.SessionBus()
-        self.aseba_proc=subprocess.Popen(['asebamedulla "ser:name=Thymio-II"'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)	
+        self.aseba_proc=subprocess.Popen(['asebamedulla "ser:name=Thymio-II"'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)    
         time.sleep(2)
         self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
         node=self.network.GetNodesList()
@@ -346,6 +350,17 @@ class ThymioReal(Thymio):
         self.loop.quit()
 
 class ThymioSim(Thymio):
+    def __init__(self):
+        super().__init__()
+        self.forward_velocity=0.0
+        self.rot_velocity=0.0
+
     def open(self):
         self.window=turtle.Screen()
         self.robot=turtle.Turtle()
+        self.thread=Thread(target=self.run)
+        self.thread.start()
+
+    #def run(self):
+        
+        
