@@ -7,9 +7,10 @@ m.init_read()
 while(1):
     m.wheels(50,50)
     data=m.prox_horizontal
+    print(data)
     front=data[2]
-    print front
+    print(front)
     if front>2000:
-	m.quit()
-	break
+        m.quit()
+   
 
