@@ -5,6 +5,6 @@ import pythymiodw as tdw
 import time
 
 m=tdw.ThymioReal()
-time.sleep(2)
+m.sleep(2)
 m.close()
 
