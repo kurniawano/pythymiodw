@@ -14,6 +14,8 @@ from gi.repository import GObject as gobject
 from optparse import OptionParser
 from threading import Thread
 from . import io 
+import queue
+import math
 
 #time step, 0.1 second
 dt = 100
@@ -33,7 +35,11 @@ class Thymio(object):
     def run(self):
         try:
             self._run()
-        except:
+        except Exception as inst:
+            print('Fail running thread.')
+            print(type(inst))
+            print(inst.args)
+            print(inst)
             self.quit()
 
     def _run(self):
@@ -307,7 +313,8 @@ class ThymioReal(Thymio):
     def dbus_error(self, e):
         Thymio.dbus_error(self,e)
         self.quit()
-
+    def sleep(self,n):
+        time.sleep(n)
 
     def get_variables_error(self, e):
         Thymio.get_variables_error(self,e)
@@ -353,14 +360,49 @@ class ThymioSim(Thymio):
     def __init__(self):
         super().__init__()
         self.forward_velocity=0.0
-        self.rot_velocity=0.0
+        self.rotational_velocity=0.0
+        self.leftv=0
+        self.rightv=0
+        self.heading=0.0
+        #self.run()
 
     def open(self):
         self.window=turtle.Screen()
         self.robot=turtle.Turtle()
-        self.thread=Thread(target=self.run)
-        self.thread.start()
-
-    #def run(self):
+        #self.robot.penup()
+        
+        
+    def run(self):
+        #output=io.Action(fv=self.forward_velocity,rv=self.rotational_velocity)
+        self._wheels(self.leftv,self.rightv)
+        #turtle.ontimer(self.run,100)
+        
+    def wheels(self, l, r):
+        self.leftv=l
+        self.rightv=r
+        
+    def speed_to_pixel(self, l,r):
+        vl=20/500.0*l*dt/1000
+        vr=20/500.0*r*dt/1000
+        return vl, vr
+    def sleep(self,n):
+        t=0
+        while t<n:
+            self.run()
+            t+=0.1
+            time.sleep(0.1)
+    def rad_to_deg(self,omega):
+        return omega/math.pi*180
+    
+    def _wheels(self,l,r):
+        W=0.095*100
+        vl,vr=self.speed_to_pixel(l,r)
+        omega=1/W*(vr-vl)
+        omegadeg=self.rad_to_deg(omega)
+        fv=0.5*(vr+vl)
+        print(fv,omegadeg)
+        self.heading+=omegadeg
+        self.robot.forward(fv)
+        self.robot.setheading(self.heading)
         
         
