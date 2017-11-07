@@ -1,6 +1,14 @@
-from pythymiodw import ThymioSim
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Nov  7 16:38:29 2017
 
-robot=ThymioSim()
+@author: root
+"""
+
+from pythymiodw import ThymioReal
+
+robot=ThymioReal()
 #robot.init_read()
 robot.sleep(1)
 print('move')
