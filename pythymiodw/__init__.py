@@ -14,13 +14,14 @@ from gi.repository import GObject as gobject
 from optparse import OptionParser
 from threading import Thread
 from . import io 
+from .world import Point
 import queue
 import math
 
 #time step, 0.1 second
 dt = 100
 
-class Thymio(object):
+class Thymio:
     def __init__(self):
         self.open()
         self._prox_horizontal=[0,0,0,0,0,0,0]
@@ -357,13 +358,23 @@ class ThymioReal(Thymio):
         self.loop.quit()
 
 class ThymioSim(Thymio):
-    def __init__(self):
+    def __init__(self,world=None):
         super().__init__()
         self.forward_velocity=0.0
         self.rotational_velocity=0.0
         self.leftv=0
         self.rightv=0
         self.heading=0.0
+        self.world=world
+        if self.world!=None:
+            self.world.draw_world(self.robot)
+            self.init_pos=self.world.get_init_pos()
+            self.heading=self.world.get_init_heading()
+        else:
+            self.init_pos=Point(0,0)
+            self.heading=0
+        self.robot.setposition(self.init_pos.x,self.init_pos.y)
+        self.robot.setheading(self.heading)
         #self.run()
 
     def open(self):
@@ -402,7 +413,18 @@ class ThymioSim(Thymio):
         fv=0.5*(vr+vl)
         print(fv,omegadeg)
         self.heading+=omegadeg
-        self.robot.forward(fv)
+        can_move=self.check_world(fv)
+        if can_move:
+            self.robot.forward(fv)
         self.robot.setheading(self.heading)
-        
+      
+    def check_world(self, fv):
+        rad=fv*dt/1000.0
+        angle=self.robot.heading()
+        angle_rad=angle/180.0*math.pi  
+        x,y=self.robot.position()
+        dx=rad*math.cos(angle_rad)
+        dy=rad*math.sin(angle_rad)
+        new_x,new_y=x+dx,y+dy
+        return not self.world.is_overlap(Point(new_x,new_y))
         
