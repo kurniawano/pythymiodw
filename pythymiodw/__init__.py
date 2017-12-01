@@ -366,6 +366,8 @@ class ThymioSim(Thymio):
         self.rightv=0
         self.heading=0.0
         self.world=world
+        ll,ur=self.world.get_world_boundaries()
+        self.window.setworldcoordinates(ll.x,ll.y,ur.x,ur.y)
         if self.world!=None:
             self.world.draw_world(self.robot)
             self.init_pos=self.world.get_init_pos()
@@ -385,6 +387,7 @@ class ThymioSim(Thymio):
         
     def run(self):
         #output=io.Action(fv=self.forward_velocity,rv=self.rotational_velocity)
+        self.get_prox_horizontal()
         self._wheels(self.leftv,self.rightv)
         #turtle.ontimer(self.run,100)
         
@@ -393,9 +396,10 @@ class ThymioSim(Thymio):
         self.rightv=r
         
     def speed_to_pixel(self, l,r):
-        vl=20/500.0*l*dt/1000
+        vl=20/500.0*l*dt/1000 #20cm/s divided by max speed wheels 500
         vr=20/500.0*r*dt/1000
         return vl, vr
+
     def sleep(self,n):
         t=0
         while t<n:
@@ -411,7 +415,6 @@ class ThymioSim(Thymio):
         omega=1/W*(vr-vl)
         omegadeg=self.rad_to_deg(omega)
         fv=0.5*(vr+vl)
-        print(fv,omegadeg)
         self.heading+=omegadeg
         can_move=self.check_world(fv)
         if can_move:
@@ -420,11 +423,28 @@ class ThymioSim(Thymio):
       
     def check_world(self, fv):
         rad=fv*dt/1000.0
+        new_x, new_y = self.get_new_point(rad)
+        if self.world.is_overlap(Point(new_x,new_y)):
+            return False
+        ll,ur=self.world.get_world_boundaries()
+        if new_x<ll.x or new_x > ur.x or new_y<ll.y or new_y>ur.y:
+            return False
+        return True
+        
+    def get_new_point(self,rad):
         angle=self.robot.heading()
         angle_rad=angle/180.0*math.pi  
         x,y=self.robot.position()
         dx=rad*math.cos(angle_rad)
         dy=rad*math.sin(angle_rad)
         new_x,new_y=x+dx,y+dy
-        return not self.world.is_overlap(Point(new_x,new_y))
-        
+        return new_x, new_y
+      
+
+    def get_prox_horizontal(self):
+        rad=10 # when it is 10cm
+        new_x, new_y=self.get_new_point(rad)
+        self._prox_horizontal=[0 for i in range(7)]
+        if self.world.is_overlap(Point(new_x,new_y)):
+            self._prox_horizontal[2]=1000 
+        return self._prox_horizontal
