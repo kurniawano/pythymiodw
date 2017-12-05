@@ -19,7 +19,7 @@ import queue
 import math
 
 #time step, 0.1 second
-dt = 100
+dt = 200
 
 class Thymio:
     def __init__(self):
@@ -250,7 +250,10 @@ class ThymioReal(Thymio):
         os.killpg(os.getpgid(self.aseba_proc.pid), signal.SIGTERM)
 
     def _run(self):
-        self.loop.run()
+        try:
+            self.loop.run()
+        except:
+            self.quit()
 
     def get(self, node, var):
         dbus_array = self.network.GetVariable(node, var)

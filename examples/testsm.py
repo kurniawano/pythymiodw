@@ -8,13 +8,25 @@ from libdw import sm
 
 
 class TestRead(sm.SM):
+    startState='move'
     def get_next_values(self,state, inp):
-        	print(inp.prox_horizontal[2])
-        	print(inp.prox_ground.delta)
-        	#print inp.temperature
-        	#print inp.accelerometer
-        	return state, io.Action(fv=0.00,rv=0)
+       	print(inp.prox_horizontal[2])
+       	print(inp.prox_ground.delta)
+       	#print inp.temperature
+       	#print inp.accelerometer
+        if inp.prox_horizontal[2]>0:
+            state='done'
+            forward=0.0
+        else:
+            forward=0.1
+        return state, io.Action(fv=forward,rv=0)
 	
+    def done(self,state):
+        if state=='done':
+            return True
+        else:
+            return False
+
 MySM=TestRead()
 
 ############################
@@ -22,6 +34,7 @@ MySM=TestRead()
 set_base(ThymioReal)
 m=ThymioSM(MySM)
 try:
-    m.run()
-except:
-    m.quit()
+    m.start()
+   # m.run()
+except KeyboardInterrupt:
+    m.stop()

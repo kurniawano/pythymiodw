@@ -9,7 +9,7 @@ class MyRobot(ThymioReal):
     def main_loop(self):
         print(m.get_temperature())
         time.sleep(1)
-        print(m.get_prox_horizontal())
+        print('prox_horizontal:',m.get_prox_horizontal())
         ground=m.get_prox_ground()
         print(ground.delta)
         print(ground.reflected)
