@@ -2,9 +2,9 @@
 Getting Started
 ===============
 
--------------
-Installation
--------------
+--------------------------
+Installation and Upgrade
+--------------------------
 
 To install pythymiodw library, type the following in a shell::
 	> pip3 install pythymiodw
