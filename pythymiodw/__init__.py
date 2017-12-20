@@ -369,9 +369,9 @@ class ThymioSim(Thymio):
         self.rightv=0
         self.heading=0.0
         self.world=world
-        ll,ur=self.world.get_world_boundaries()
-        self.window.setworldcoordinates(ll.x,ll.y,ur.x,ur.y)
         if self.world!=None:
+            ll,ur=self.world.get_world_boundaries()
+            self.window.setworldcoordinates(ll.x,ll.y,ur.x,ur.y)
             self.world.draw_world(self.robot)
             self.init_pos=self.world.get_init_pos()
             self.heading=self.world.get_init_heading()
@@ -425,6 +425,8 @@ class ThymioSim(Thymio):
         self.robot.setheading(self.heading)
       
     def check_world(self, fv):
+        if self.world==None:
+            return True
         rad=fv*dt/1000.0
         new_x, new_y = self.get_new_point(rad)
         if self.world.is_overlap(Point(new_x,new_y)):
@@ -448,6 +450,7 @@ class ThymioSim(Thymio):
         rad=10 # when it is 10cm
         new_x, new_y=self.get_new_point(rad)
         self._prox_horizontal=[0 for i in range(7)]
-        if self.world.is_overlap(Point(new_x,new_y)):
-            self._prox_horizontal[2]=1000 
+        if self.world!=None:
+            if self.world.is_overlap(Point(new_x,new_y)):
+                self._prox_horizontal[2]=1000 
         return self._prox_horizontal
