@@ -7,8 +7,13 @@ import time
 
 
 m=ThymioReal()
-m.init_read()
-while True:
-    print(m.prox_horizontal)
-    m.sleep(0.1)
-m.quit()
+try:
+    m.init_read()
+    while True:
+        print(m.prox_horizontal)
+        print(m.prox_ground)
+        print(m.temperature)
+        print(m.accelerometer)
+        m.sleep(0.5)
+except:
+    m.quit()

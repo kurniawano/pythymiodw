@@ -8,7 +8,7 @@ from libdw import sm
 
 
 class TestRead(sm.SM):
-    startState='move'
+    start_state='move'
     def get_next_values(self,state, inp):
        	print(inp.prox_horizontal[2])
        	print(inp.prox_ground.delta)
