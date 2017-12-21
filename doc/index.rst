@@ -12,6 +12,7 @@ Welcome to PyThymio Documentation's documentation!
 
    getstart
    tutorial
+   common
    api
    
 
