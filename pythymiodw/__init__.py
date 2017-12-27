@@ -15,14 +15,20 @@ from optparse import OptionParser
 from threading import Thread
 from . import io 
 from .world import Point
-import queue
+#import queue
 import math
 
 #time step, 0.1 second
 dt = 200
 
 class Thymio:
+    """ This is the base class for Thymio.
+
+    You never need to instantiate this class directly. Use ThymioReal or ThymioSim instead.
+    """
     def __init__(self):
+    """Constructor need not any argument.
+    """
         self.open()
         self._prox_horizontal=[0,0,0,0,0,0,0]
         self._prox_ground_delta=[0,0]
@@ -34,6 +40,10 @@ class Thymio:
         self.off_sounds()
 
     def run(self):
+    """A method to start the robot. You need not call this directly. It is called by init_read() method.
+
+    This method calls _run() which is implemented in ThymioReal and ThymioSim.
+    """
         try:
             self._run()
         except Exception as inst:
@@ -44,20 +54,32 @@ class Thymio:
             self.quit()
 
     def _run(self):
+    """Internal method to run the robot. This is called by run() and implemented by ThymioReal and ThymioSim.
+    """
         pass
 
     def init_read(self):
+    """Method to start running the robot in a thread. It calls run().
+    """
         self.thread=Thread(target=self.run)
         self.thread.start()
 
     def open(self):
+    """Method to open the connection. Implemented in the subclass.
+    """
         pass    
 
     def close(self):
+    """Method to be called when closing. You need not call this directly. ThymioReal and ThymioSim implements this.
+    """
         print('closing.')
         time.sleep(2)
 
     def main_loop(self):
+    """Main loop to be called every time stelp.
+
+    The main loop simply reads the various sensors and returns True.
+    """
         self.get_prox_horizontal()
         self.get_prox_ground()
         self.get_temperature()
@@ -65,48 +87,71 @@ class Thymio:
         return True
 
     def leds_top(self,r=0,g=0,b=0):
+    """Turn on top LEDs. Implemented in sub class.
+    """
         pass
 
     def leds_circle(self,led0=0, led1=0, led2=0, led3=0, led4=0, led5=0, led6=0, led7=0):
+    """Turn on circle LEDs. Implemented in sub class.
+    """
         pass
 
     def leds_buttons(self,led0=0, led1=0, led2=0, led3=0):
+    """Turn on LEDs on buttons. Implemented in sub class.
+    """
         pass
 
     def leds_prox_h(self,led0=0, led1=0, led2=0, led3=0, led4=0, led5=0, led6=0, led7=0):
+    """Turn on horizontal proximity sensors' LEDs. Implemented in sub class.
+    """
         pass
 
     def leds_prox_v(self,led0=0, led1=0, led2=0, led3=0, led4=0, led5=0, led6=0, led7=0):
+    """Turn on vertical proximity sensors' LEDs. Implemented in sub class.
+    """
         pass
 
     def leds_rc(self,led=0):
+    """Turn on RC LED. Implemented in sub class.
+    """
         pass
 
     def leds_bottom_left(self,r=0,g=0,b=0):
+    """Turn on LED on bottom left of robot. Implemented in sub class.
+    """
         pass
 
     def leds_bottom_right(self,r=0,g=0,b=0):
+    """Turn on LED on bottom right of robot. Implemented in sub class.
+    """
         pass
 
     def leds_temperature(self,r=0,b=0):
+    """Turn on temperature sensor's LED of robot. Implemented in sub class.
+    """
         pass
 
     def leds_sound(self,led=0):
+    """Turn on speaker's LED of robot. Implemented in sub class.
+    """
         pass
 
     def sound_system(self,n=0):
+    """Turn on the sound for system. Implemented in sub class.
+    """
         pass
 
     def sound_freq(self,hz=0, ds=0):
+    """Turn on sound using specific frequency. Implemented in sub class.
+    """
         pass
 
     def sound_play(self,n=0):
+    """Play recorded sound. Implemented in sub class.
+    """
         pass
 
     def sound_replay(self,n=0):
-        pass
-
-    def dbus_reply(self):
         pass
 
     def dbus_error(self, e):
@@ -317,6 +362,7 @@ class ThymioReal(Thymio):
     def dbus_error(self, e):
         Thymio.dbus_error(self,e)
         self.quit()
+
     def sleep(self,n):
         time.sleep(n)
 
