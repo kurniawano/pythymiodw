@@ -158,77 +158,93 @@ class Thymio:
         print('error:')
         print(str(e))
 
-    def prox_horizontal_handler(self, r):
-        dist=[int(x) for x in r]
-        self._prox_horizontal=dist
-
-    def prox_ground_delta_handler(self, r):
-        t=[int(x) for x in r]
-        self._prox_ground_delta=t
-
-    def prox_ground_reflected_handler(self, r):
-        t=[int(x) for x in r]
-        self._prox_ground_reflected=t
-
-    def prox_ground_ambiant_handler(self, r):
-        t=[int(x) for x in r]
-        self._prox_ground_ambiant=t
-
-    def acc_handler(self, r):
-        t=[int(x) for x in r]
-        self._accelerometer=t
-
-    def temperature_handler(self, r):
-        t=[int(x) for x in r]
-        self._temperature=t[0]/10.0
-
     def get_variables_error(self, e):
         print('error:')
         print(str(e))
 
     def get_prox_horizontal(self):
+    """Method to get horizontal proxmity sensors. Implemented by sub class.
+    """
         pass
 
     def get_prox_ground_delta(self):
+    """Method to get delta ground proximity sensor. Implemented by sub class.
+    """
         pass
 
     def get_prox_ground_reflected(self):
+    """Method to get reflected ground proximity sensor. Implemented by sub class.
+    """
         pass
 
     def get_prox_ground_ambiant(self):
+    """Method to get ambient ground proximity sensor. Implemented by sub class.
+    """
         pass
 
     def get_prox_ground(self):
+    """Method to get all the three ground proximity sensor: delta, reflected, and ambiant.
+
+    Returns: io.ProxGround object.
+    """
         self.get_prox_ground_delta()
         self.get_prox_ground_reflected()
         self.get_prox_ground_ambiant()
         return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
 
+    def get_temperature(self):
+    """Method to get temperature sensor data. Implemented by sub class.
+    """
+        pass
+
+    def get_accelerometer(self):
+    """Method to get accelerometer data. Implemented by sub class.
+    """
+        pass
+
     def read_prox_horizontal(self):
+    """Method to read horizontal proximity sensor. Used by property.
+    """
         return self._prox_horizontal
 
     def read_prox_ground(self):
+    """Method to read ground proximity sensor. Used by property.
+    """
         return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
 
     def read_temperature(self):
+    """Method to read temperature sensor. Used by property.
+    """
         return self._temperature
 
     def read_accelerometer(self):
+    """Method to read accelerometer. Used by property.
+    """
         return self._accelerometer
 
     def wheels(self,l,r):
+    """Method to set the left and right speed of robot's wheels.
+    """
         self._wheels(l,r)
 
     def _wheels(self,l,r):
+    """Internal method called by wheels(). Implemented by sub class.
+    """
         pass
 
     def halt(self):
+    """Method to stop the robot. 
+    """
         self._halt()
 
     def _halt(self):
+    """Internal method to stop the robot. Implemented by sub class.
+    """
         pass
     
     def off_leds(self):
+    """Method to turn off all LEDs.
+    """
         self.leds_top()
         self.leds_circle()
         self.leds_buttons()
@@ -241,12 +257,16 @@ class Thymio:
         self.leds_sound()
 
     def off_sounds(self):
+    """Method to switch off the sounds.
+    """
         self.sound_system(-1)
         self.sound_freq()
         self.sound_play(-1)
         self.sound_replay(-1)
 
     def quit(self):
+    """Overall method to stop and switch off everything.
+    """
         self.halt()
         self.off_leds()
         self.off_sounds()
@@ -254,14 +274,11 @@ class Thymio:
         self.close()
 
     def quit_loop(self):
+    """Method to quit the main loop.
+    """
         pass
 
-    def get_temperature(self):
-        pass
-
-    def get_accelerometer(self):
-        pass
-
+    # list of Thymio's properties
     prox_horizontal=property(read_prox_horizontal)
     prox_ground=property(read_prox_ground)
     temperature=property(read_temperature)
@@ -365,6 +382,42 @@ class ThymioReal(Thymio):
 
     def sleep(self,n):
         time.sleep(n)
+
+    def prox_horizontal_handler(self, r):
+    """Callback for robot to send horizontal proximity sensor data.
+    """
+        dist=[int(x) for x in r]
+        self._prox_horizontal=dist
+
+    def prox_ground_delta_handler(self, r):
+    """Callback for robot to send delta ground proximity sensor data.
+    """
+        t=[int(x) for x in r]
+        self._prox_ground_delta=t
+
+    def prox_ground_reflected_handler(self, r):
+    """Callback for robot to send reflected ground proximity sensor data.
+    """
+        t=[int(x) for x in r]
+        self._prox_ground_reflected=t
+
+    def prox_ground_ambiant_handler(self, r):
+    """Callback for robot to send ambient ground proximity sensor data.
+    """
+        t=[int(x) for x in r]
+        self._prox_ground_ambiant=t
+
+    def acc_handler(self, r):
+    """Callback for robot to send accelerometer data.
+    """
+        t=[int(x) for x in r]
+        self._accelerometer=t
+
+    def temperature_handler(self, r):
+    """Callback for robot to send temperature sensor data.
+    """
+        t=[int(x) for x in r]
+        self._temperature=t[0]/10.0
 
     def get_variables_error(self, e):
         Thymio.get_variables_error(self,e)
