@@ -3,8 +3,8 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = python -msphinx
-SPHINXPROJ    = PyThymioDocumentation
+SPHINXBUILD   = sphinx-build
+SPHINXPROJ    = PyThymioDW
 SOURCEDIR     = .
 BUILDDIR      = _build
 
