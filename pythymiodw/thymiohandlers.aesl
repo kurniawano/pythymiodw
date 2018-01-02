@@ -27,7 +27,9 @@
 
 
 <!--node thymio-II-->
-<node nodeId="65082" name="thymio-II">onevent SetLEDsTop
+<node nodeId="65082" name="thymio-II">
+
+onevent SetLEDsTop
 call leds.top(event.args[0], event.args[1], event.args[2])
 
 onevent SetLEDsCircle
@@ -68,7 +70,6 @@ call sound.play(event.args[0])
 
 onevent SetSoundReplay
 call sound.replay(event.args[0])
-
 
 
 </node>
