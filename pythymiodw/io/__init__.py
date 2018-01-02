@@ -23,6 +23,11 @@ class Input(object):
         self.prox_ground=ProxGround()
         self.temperature=0.0
         self.accelerometer=[0.0,0.0,0.0]
+        self.button_center=0
+        self.button_left=0
+        self.button_right=0
+        self.button_forward=0
+        self.button_backward=0
 
 class ProxGround(object):
     def __init__(self,delta=[0.0,0.0],reflected=[0.0,0.0],ambiant=[0.0,0.0]):

@@ -46,6 +46,11 @@ class ThymioSM1(base_class):
         self.input.prox_ground=self.prox_ground
         self.input.temperature=self.temperature
         self.input.accelerometer=self.accelerometer
+        self.input.button_center=self.button_center
+        self.input.button_left=self.button_left
+        self.input.button_right=self.button_right
+        self.input.button_forward=self.button_forward
+        self.input.button_backward=self.button_backward
         output=self.behaviour.step(self.input)
         self.move(output)
             

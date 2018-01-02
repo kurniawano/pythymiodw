@@ -10,6 +10,8 @@ from libdw import sm
 class TestRead(sm.SM):
     start_state='move'
     def get_next_values(self,state, inp):
+        if inp.button_backward:
+            return 'done', io.Action(0,0)
        	print(inp.prox_horizontal[2])
        	print(inp.prox_ground.delta)
        	#print inp.temperature
