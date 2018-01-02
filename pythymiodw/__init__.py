@@ -600,7 +600,8 @@ class ThymioSim(Thymio):
             self.init_pos=self.world.get_init_pos()
             self.heading=self.world.get_init_heading()
         else:
-            self.init_pos=Point(0,0)
+            pos=self.robot.position()
+            self.init_pos=Point(pos[0],pos[1])
             self.heading=0
         self.robot.setposition(self.init_pos.x,self.init_pos.y)
         self.robot.setheading(self.heading)

@@ -5,6 +5,7 @@ import sys
 from pythymiodw import io
 from pythymiodw.sm import *
 from libdw import sm
+from boxworld import *
 
 
 class TestRead(sm.SM):
@@ -13,7 +14,7 @@ class TestRead(sm.SM):
         if inp.button_backward:
             return 'done', io.Action(0,0)
        	print(inp.prox_horizontal[2])
-       	print(inp.prox_ground.delta)
+       	#print(inp.prox_ground.delta)
        	#print inp.temperature
        	#print inp.accelerometer
         if inp.prox_horizontal[2]>0:
@@ -33,8 +34,8 @@ MySM=TestRead()
 
 ############################
 
-set_base(ThymioReal)
-m=ThymioSM(MySM)
+#m=ThymioSMSim(MySM,thymio_world)
+m=ThymioSMReal(MySM,thymio_world)
 try:
     m.start()
    # m.run()

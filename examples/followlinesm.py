@@ -5,7 +5,16 @@ from libdw import sm
 
 class FollowLine(sm.SM):
     start_state='find'
+    def done(self,state):
+        if state=='halt':
+            return True
+        else:
+            return False
+
     def get_next_values(self, state, inp):
+        if inp.button_backward:
+            return 'halt', io.Action(0,0)
+
         ground=inp.prox_ground.delta
         left=ground[0]
         right=ground[1]
@@ -46,10 +55,8 @@ MySM=FollowLine()
 
 ############################
 
-set_base(ThymioReal)
-m=ThymioSM(MySM)
+m=ThymioSMReal(MySM)
 try:
     m.start()
-   # m.run()
 except KeyboardInterrupt:
     m.stop()
