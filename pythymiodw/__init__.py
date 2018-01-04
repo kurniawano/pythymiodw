@@ -7,15 +7,14 @@ import sys
 import signal
 import turtle
 
-import dbus
-import dbus.mainloop.glib
-#import gobject
-from gi.repository import GObject as gobject
-from optparse import OptionParser
+if sys.platform =='linux' or sys.platform=='linux2':
+    import dbus
+    import dbus.mainloop.glib
+    from gi.repository import GObject as gobject
+
 from threading import Thread
 from . import io 
 from .world import Point
-#import queue
 import math
 
 #time step, 0.1 second
