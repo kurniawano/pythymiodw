@@ -614,10 +614,10 @@ class ThymioSim(Thymio):
         
         
     def run(self):
-        #output=io.Action(fv=self.forward_velocity,rv=self.rotational_velocity)
         self.get_prox_horizontal()
+        self.get_prox_ground()
+        self.get_temperature()
         self._wheels(self.leftv,self.rightv)
-        #turtle.ontimer(self.run,100)
         
     def wheels(self, l, r):
         self.leftv=l
@@ -632,8 +632,8 @@ class ThymioSim(Thymio):
         t=0
         while t<n:
             self.run()
-            t+=0.1
-            time.sleep(0.1)
+            t+=dt/1000
+            time.sleep(dt/1000)
     def rad_to_deg(self,omega):
         return omega/math.pi*180
     
@@ -679,3 +679,26 @@ class ThymioSim(Thymio):
             if self.world.is_overlap(Point(new_x,new_y)):
                 self._prox_horizontal[2]=1000 
         return self._prox_horizontal
+
+    def get_prox_ground(self):
+        posx,posy=self.robot.position()
+        delta=500
+        leftx=posx-1
+        rightx=posx+1
+        lefty=righty=posy
+        self._prox_ground_delta=[0,0]
+        self._prox_ground_reflected=[1000,1000]
+        self._prox_ground_ambiant=[1000,1000]
+        if self.world!=None:
+            if self.world.is_overlap(Point(leftx,lefty)):
+                self._prox_ground_reflected[0]=self._prox_ground_ambiant[0]-delta
+            else:
+                self._prox_ground_reflected[0]=self._prox_ground_ambiant[0]
+
+            if self.world.is_overlap(Point(rightx,righty)):
+                self._prox_ground_reflected[1]=self._prox_ground_ambiant[1]-delta
+            else:
+                self._prox_ground_reflected[1]=self._prox_ground_ambiant[1]
+        self._prox_ground_delta[0]=self._prox_ground_ambiant[0]-self._prox_ground_reflected[0] 
+        self._prox_ground_delta[1]=self._prox_ground_ambiant[1]-self._prox_ground_reflected[1] 
+        return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
