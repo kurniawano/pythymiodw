@@ -5,7 +5,6 @@ import sys
 from pythymiodw import ThymioReal
 
 m=ThymioReal()
-m.init_read()
 print('sound.system(7)')
 m.sound_system(7)
 m.sleep(2)

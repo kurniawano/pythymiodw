@@ -1,7 +1,6 @@
 from pythymiodw import ThymioSim
 
 robot=ThymioSim()
-robot.init_read()
 robot.sleep(1)
 print('move')
 robot.wheels(100,100)

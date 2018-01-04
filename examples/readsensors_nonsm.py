@@ -7,7 +7,6 @@ import time
 
 
 m=ThymioReal()
-m.init_read()
 print(m.prox_horizontal)
 print(m.prox_ground.delta)
 print(m.prox_ground.reflected)

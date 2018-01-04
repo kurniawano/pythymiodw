@@ -3,7 +3,7 @@ import sys
 #sys.path.append('..')
 
 from pythymiodw import io
-from pythymiodw.sm import ThymioSM
+from pythymiodw.sm import ThymioSMReal
 from libdw import sm
 
 
@@ -18,8 +18,8 @@ MySM=TestRead()
 
 ############################
 
-m=ThymioSM(MySM)
+m=ThymioSMReal(MySM)
 try:
-    m.run()
+    m.start()
 except:
     m.quit()

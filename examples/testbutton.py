@@ -5,7 +5,6 @@ import time
 from pythymiodw import ThymioReal
 
 m = ThymioReal()
-m.init_read()
 while True:
     print('color top 1')
     m.leds_top(0,0,32)

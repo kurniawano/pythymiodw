@@ -3,7 +3,6 @@ import sys
 from pythymiodw import ThymioReal
 
 m=ThymioReal()
-m.init_read()
 while(1):
     m.wheels(50,50)
     data=m.prox_horizontal

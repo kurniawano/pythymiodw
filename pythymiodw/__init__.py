@@ -44,31 +44,6 @@ class Thymio:
         self.off_leds()
         self.off_sounds()
 
-    def run(self):
-        """A method to start the robot. You need not call this directly. It is called by init_read() method.
-
-        This method calls _run() which is implemented in ThymioReal and ThymioSim.
-        """
-        try:
-            self._run()
-        except Exception as inst:
-            print('Fail running thread.')
-            print(type(inst))
-            print(inst.args)
-            print(inst)
-            self.quit()
-
-    def _run(self):
-        """Internal method to run the robot. This is called by run() and implemented by ThymioReal and ThymioSim.
-        """
-        pass
-
-    def init_read(self):
-        """Method to start running the robot in a thread. It calls run().
-        """
-        self.thread=Thread(target=self.run)
-        self.thread.start()
-
     def open(self):
         """Method to open the connection. Implemented in the subclass.
         """
@@ -81,7 +56,7 @@ class Thymio:
         time.sleep(2)
 
     def main_loop(self):
-        """Main loop to be called every time stelp.
+        """Main loop to be called every time step.
 
         The main loop simply reads the various sensors and returns True.
         """
@@ -350,6 +325,35 @@ class Thymio:
     button_right=property(read_button_right)
 
 class ThymioReal(Thymio):
+    def __init__(self,world=None):
+        super().__init__()
+        self.init_read()
+
+    def run(self):
+        """A method to start the robot. You need not call this directly. It is called by init_read() method.
+
+        This method calls _run() which is implemented in ThymioReal and ThymioSim.
+        """
+        try:
+            self._run()
+        except Exception as inst:
+            print('Fail running thread.')
+            print(type(inst))
+            print(inst.args)
+            print(inst)
+            self.quit()
+
+    def _run(self):
+        """Internal method to run the robot. This is called by run() and implemented by ThymioReal and ThymioSim.
+        """
+        pass
+
+    def init_read(self):
+        """Method to start running the robot in a thread. It calls run().
+        """
+        self.thread=Thread(target=self.run)
+        self.thread.start()
+
     def open(self):
         self.device="thymio-II"
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -604,12 +608,10 @@ class ThymioSim(Thymio):
             self.heading=0
         self.robot.setposition(self.init_pos.x,self.init_pos.y)
         self.robot.setheading(self.heading)
-        #self.run()
 
     def open(self):
         self.window=turtle.Screen()
         self.robot=turtle.Turtle()
-        #self.robot.penup()
         
         
     def run(self):

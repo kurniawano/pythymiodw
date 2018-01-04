@@ -6,5 +6,5 @@ import time
 
 m=tdw.ThymioReal()
 m.sleep(2)
-m.close()
+m.quit()
 

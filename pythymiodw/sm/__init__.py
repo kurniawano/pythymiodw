@@ -82,12 +82,11 @@ class ThymioSM2(ThymioSim):
         self.behaviour=MySM
         self.input=Input()
         self.behaviour.start()
-        self.init_read()
 
     def update(self):
         self.input.prox_horizontal=self.prox_horizontal
-        #self.input.prox_ground=self.prox_ground
-        #self.input.temperature=self.temperature
+        self.input.prox_ground=self.prox_ground
+        self.input.temperature=self.temperature
         #self.input.accelerometer=self.accelerometer
         #self.input.button_center=self.button_center
         #self.input.button_left=self.button_left

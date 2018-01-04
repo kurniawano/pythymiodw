@@ -1,7 +1,6 @@
 from pythymiodw import *
 
 robot=ThymioReal()
-robot.init_read()
 
 while True:
     ground=robot.prox_ground
