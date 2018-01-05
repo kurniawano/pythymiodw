@@ -12,8 +12,6 @@ Setup
 * ``ThymioSim(world=None)``
 	This is used to instantiate an object to control a simulation using Python's turtle module. You can provide the world for the simulator to draw.  The world must be of the type ``World`` from ``pythymio.world``. 
 
-* ``obj.init_read()``
-	This method must be called in normal mode to initiate sensor readings for physical robot, or setup the simulation reading of sensors.
 
 ---------
 Actuators
@@ -62,5 +60,17 @@ Sensors
 * ``obj.accelerometer``
 	Returns a tuple of three elements which are the x, y, and z acceleration from the acelerometer.
 
+* ``obj.button_forward``
+	Returns 1 if the forward button is pressed, 0 otherwise.
 
+* ``obj.button_backward``
+	Returns 1 if the backward button is pressed, 0 otherwise.
 
+* ``obj.button_center``
+	Returns 1 if the center button is pressed, 0 otherwise.
+
+* ``obj.button_left``
+	Returns 1 if the left button is pressed, 0 otherwise.
+
+* ``obj.button_right``
+	Returns 1 if the right button is pressed, 0 otherwise.

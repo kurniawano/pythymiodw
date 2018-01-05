@@ -15,15 +15,13 @@ To run in normal mode, you need either to import ThymioReal or ThymioSim class, 
 
 	from pythymiodw import *
 	robot = ThymioSim()
-	robot.init_read()
 
-The first line imports the necessary classes and definitions. The second line instantiates an object of ThymioSim to do a simulation using Python's turtle. The third line initiates simulation for reading sensor data. On the other hand, if you wish to control the real physical robot, you should write::
+The first line imports the necessary classes and definitions. The second line instantiates an object of ThymioSim to do a simulation using Python's turtle. On the other hand, if you wish to control the real physical robot, you should write::
 
 	from pythymiodw import *
 	robot = ThymioReal()
-	robot.init_read()
 
-The second line instantiates an object of ThymioReal. This creates a connection to the physical robot using asebamedulla (D-Bus). The third line initiates the sensor readings of the physical robot.
+The second line instantiates an object of ThymioReal. This creates a connection to the physical robot using asebamedulla (D-Bus). 
 
 Once this first step is done, you can access the actuators and the sensors of the robot. Please check the API for the available properties and methods to access this. For example, to move the robot forward for one second, you should write::
 
@@ -41,7 +39,6 @@ Your first program to move the robot for one second should looks like the follow
 
 	from pythymiodw import *
 	robot = ThymioReal()
-	robot.init_read()
 	robot.wheels(100,100)
 	robot.sleep(1)
 	robot.wheels(0,0)
