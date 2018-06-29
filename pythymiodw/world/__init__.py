@@ -1,4 +1,5 @@
 import turtle
+import pygame
 
 class Point:
     def __init__(self, x=0,y=0):
@@ -16,6 +17,34 @@ class Block:
             return True
         else:
             return False
+
+class Floor(Block):
+    def __init__(self, ll, ur, color=(255,255,255)):
+        Block.__init__(self,ll, ur)
+        self._color = color
+
+
+    def get_color(self):
+        return self._color
+
+    def set_color(self, color):
+        self._color = color
+
+    color = property(get_color, set_color)
+
+
+class Wall(Block):
+    def __init__(self, ll, ur, height=10):
+        Block.__init__(self,ll,ur)
+        self._height = height
+
+    def get_height(self):
+        return self._height
+
+    def set_height(self, height):
+        self._height = height
+
+    height = property(get_height, set_height)
 
 class World:
     def __init__(self, blocks,init_pos=None, init_heading=0):
@@ -76,3 +105,12 @@ class World:
         t.setx(b.ll.x)
         t.sety(b.ll.y)
         t.penup()
+
+class PGWorld(World):
+    def draw_block(self, robot, block):
+        assert(block.ll.x<=block.ur.x and block.ll.y>=block.ll.x)
+        if isinstance(block, Floor):
+            pygame.draw.rect(robot.screen.screen, block.color, (block.ll.x, block.ll.y, block.x_len, block.y_len))
+        else:
+            pygame.draw.rect(robot.screen.screen, (0,0,0,0), (block.ll.x, block.ll.y, block.x_len, block.y_len))
+            pygame.draw.rect(robot.screen.screen, (255,255,255), (block.ll.x+2, block.ll.y+2, block.x_len-4, block.y_len-4))
