@@ -6,6 +6,7 @@ import os
 import sys
 import signal
 import turtle
+import pygame
 
 if sys.platform =='linux' or sys.platform=='linux2':
     import dbus
@@ -15,6 +16,7 @@ if sys.platform =='linux' or sys.platform=='linux2':
 from threading import Thread
 from . import io 
 from .world import Point
+#from .pg import PGScreen, PGRobot
 import math
 
 #time step, 0.1 second
@@ -703,3 +705,30 @@ class ThymioSim(Thymio):
         self._prox_ground_delta[0]=self._prox_ground_ambiant[0]-self._prox_ground_reflected[0] 
         self._prox_ground_delta[1]=self._prox_ground_ambiant[1]-self._prox_ground_reflected[1] 
         return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
+
+# class ThymioSimPG(ThymioSim):
+#     def __init__(self,**kwargs):
+#         pygame.init()
+#         super().__init__(**kwargs)
+#     def open(self):
+#         self.window=PGScreen()
+#         self.robot=PGRobot(self.window.screen)
+
+class ThymioSimMR(Thymio):
+    def __init__(self,**kwargs):
+        super().__init__()
+        self.forward_velocity=0.0
+        self.rotational_velocity=0.0
+        self.leftv=0
+        self.rightv=0
+        self.heading=0.0
+
+    def open(self):
+        self.device="thymio-II"
+        self.pyro4ns_proc=subprocess.Popen(['pyro4-ns'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)    
+        time.sleep(2)
+
+    def close(self):
+        Thymio.close(self)
+        os.killpg(os.getpgid(self.pyro4ns_proc.pid), signal.SIGTERM)
+
