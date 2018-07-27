@@ -9,7 +9,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='pythymiodw',
-    version='1.0.2',
+    version='1.0.4',
     description='Python library for Thymio used in Digital World class',
     long_description=long_description,
     url='https://github.com/kurniawano/pythymiodw',
@@ -26,7 +26,7 @@ setup(
         ],
     keywords='robot library education',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-    install_requires=['libdw'],
+    install_requires=['libdw','Pyro4'],
     package_data={
         'pythymiodw':['thymiohandlers.aesl'],
         },

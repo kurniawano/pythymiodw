@@ -7,6 +7,7 @@ import sys
 import signal
 import turtle
 import pygame
+import Pyro4
 
 if sys.platform =='linux' or sys.platform=='linux2':
     import dbus
@@ -637,6 +638,7 @@ class ThymioSim(Thymio):
             self.run()
             t+=dt/1000
             time.sleep(dt/1000)
+
     def rad_to_deg(self,omega):
         return omega/math.pi*180
     
@@ -713,22 +715,73 @@ class ThymioSim(Thymio):
 #     def open(self):
 #         self.window=PGScreen()
 #         self.robot=PGRobot(self.window.screen)
-
+@Pyro4.expose
+@Pyro4.behavior(instance_mode="single")
 class ThymioSimMR(Thymio):
     def __init__(self,**kwargs):
         super().__init__()
-        self.forward_velocity=0.0
-        self.rotational_velocity=0.0
         self.leftv=0
         self.rightv=0
         self.heading=0.0
 
     def open(self):
         self.device="thymio-II"
-        self.pyro4ns_proc=subprocess.Popen(['pyro4-ns'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)    
-        time.sleep(2)
 
     def close(self):
         Thymio.close(self)
-        os.killpg(os.getpgid(self.pyro4ns_proc.pid), signal.SIGTERM)
+    
+    def run(self):
+        self.get_prox_horizontal()
+        self.get_prox_ground()
+        self.get_temperature()
+        self._wheels(self.leftv,self.rightv)
+
+    def sleep(self,n):
+        t=0
+        while t<n:
+            self.run()
+            t+=dt/1000
+            time.sleep(dt/1000)
+
+    @property
+    def leftv(self):
+        return self._leftv
+
+    @leftv.setter 
+    def leftv(self, val):
+        self._leftv = val
+
+    @property
+    def rightv(self):
+        return self._rightv
+    
+    @rightv.setter
+    def rightv(self, val):
+        self._rightv = val 
+    
+    def wheels(self, l, r):
+        self._leftv=l
+        self._rightv=r
+
+    @property
+    def prox_horizontal(self):
+        return self._prox_horizontal
+    
+    @prox_horizontal.setter
+    def prox_horizontal(self, val_list):
+        self._prox_horizontal = val_list
+
+    @property
+    def prox_ground(self):
+        return (self._prox_ground_delta, self._prox_ground_ambiant, self._prox_ground_reflected)
+    
+    @prox_ground.setter
+    def prox_ground(self, values):
+        self._prox_ground_delta = values[0]
+        self._prox_ground_ambiant = values[1]
+        self._prox_ground_reflected = values[2]
+
+    def quit(self):
+        super().quit()
+
 
