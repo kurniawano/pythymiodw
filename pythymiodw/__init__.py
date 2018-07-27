@@ -708,9 +708,9 @@ class ThymioSim(Thymio):
         return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
 
 class ThymioSimPG(ThymioSim):
-    def __init__(self, **kwargs):
+    def __init__(self, world = None):
         pygame.init()
-        super().__init__(**kwargs)
+        super().__init__(world)
 
     def open(self):
         self.window = PGScreen()
