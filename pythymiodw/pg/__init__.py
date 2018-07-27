@@ -2,8 +2,9 @@ import pygame
 import math
 import os
 script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-rel_path = "../images/"
+rel_path = "images/"
 abs_file_path = os.path.join(script_dir, rel_path)
+
 
 background=[255,255,255] # white
 
