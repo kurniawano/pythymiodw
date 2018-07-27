@@ -110,7 +110,10 @@ class PGWorld(World):
     def draw_block(self, robot, block):
         assert(block.ll.x<=block.ur.x and block.ll.y>=block.ll.x)
         if isinstance(block, Floor):
-            pygame.draw.rect(robot.screen.screen, block.color, (block.ll.x, block.ll.y, block.x_len, block.y_len))
+            pygame.draw.rect(robot.screen, block.color, (block.ll.x, block.ll.y, block.x_len, block.y_len))
         else:
-            pygame.draw.rect(robot.screen.screen, (0,0,0,0), (block.ll.x, block.ll.y, block.x_len, block.y_len))
-            pygame.draw.rect(robot.screen.screen, (255,255,255), (block.ll.x+2, block.ll.y+2, block.x_len-4, block.y_len-4))
+            ul_x = block.ll.x
+            ul_y = block.ll.y
+            length = abs(float(b.ur.x) - float(block.ll.x))
+            width = abs(float(b.ur.y)- float(block.ll.y))
+            robot.screen.fill(block.color,rect=[ul_x,ul_y,length,width])

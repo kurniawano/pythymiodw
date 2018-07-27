@@ -6,6 +6,7 @@ import os
 import sys
 import signal
 import turtle
+import pygame
 
 if sys.platform =='linux' or sys.platform=='linux2':
     import dbus
@@ -15,9 +16,10 @@ if sys.platform =='linux' or sys.platform=='linux2':
 from threading import Thread
 from . import io 
 from .world import Point
+from .pg import PGScreen, PGRobot
 import math
 
-#time step, 0.1 second
+#time step, 0.2 second
 dt = 200
 
 class Thymio:
@@ -635,6 +637,7 @@ class ThymioSim(Thymio):
             self.run()
             t+=dt/1000
             time.sleep(dt/1000)
+
     def rad_to_deg(self,omega):
         return omega/math.pi*180
     
@@ -703,3 +706,24 @@ class ThymioSim(Thymio):
         self._prox_ground_delta[0]=self._prox_ground_ambiant[0]-self._prox_ground_reflected[0] 
         self._prox_ground_delta[1]=self._prox_ground_ambiant[1]-self._prox_ground_reflected[1] 
         return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
+
+class ThymioSimPG(ThymioSim):
+    def __init__(self, **kwargs):
+        pygame.init()
+        super().__init__(**kwargs)
+
+    def open(self):
+        self.window = PGScreen()
+        self.robot = PGRobot(self.window.screen)
+
+    def sleep(self,n):
+        t=0
+        while t<n:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.display.quit()
+                    pygame.quit()
+                    sys.exit()
+            self.run()
+            t+=dt/1000
+            time.sleep(dt/1000)        
