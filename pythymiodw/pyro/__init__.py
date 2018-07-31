@@ -14,6 +14,8 @@ class ThymioMR():
 			self.pyro4daemon_proc=subprocess.Popen([sys.executable,'-m', 'pythymiodw.pyro.__main__'], stdout=subprocess.PIPE, shell=True)
 		else:
 			self.pyro4daemon_proc=subprocess.Popen(['python -m pythymiodw.pyro.__main__'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)    
+			time.sleep(2)
+			self.pyro4ns_proc=subprocess.Popen(['pyro4-ns'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)    
 
 		time.sleep(2)
 		self.robot = Pyro4.Proxy('PYRONAME:pythymiodw.thymiosimmr')
@@ -24,6 +26,7 @@ class ThymioMR():
 			subprocess.call(['taskkill','/F','/T','/PID',str(self.pyro4daemon_proc.pid)])
 		else:
 			os.killpg(os.getpgid(self.pyro4daemon_proc.pid), signal.SIGTERM)        
+			os.killpg(os.getpgid(self.pyro4ns_proc.pid), signal.SIGTERM)        
 
 
 	def wheels(self, lv, rv):
