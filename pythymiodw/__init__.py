@@ -16,7 +16,7 @@ if sys.platform =='linux' or sys.platform=='linux2':
 from threading import Thread
 from . import io 
 from .world import Point
-from .pg import PGScreen, PGRobot
+from .pg import PGWindow, PGRobot
 import math
 
 #time step, 0.2 second
@@ -713,8 +713,8 @@ class ThymioSimPG(ThymioSim):
         super().__init__(world)
 
     def open(self):
-        self.window = PGScreen()
-        self.robot = PGRobot(self.window.screen)
+        self.window = PGWindow()
+        self.robot = PGRobot(self.window)
 
     def sleep(self,n):
         t=0

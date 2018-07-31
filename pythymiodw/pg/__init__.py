@@ -9,17 +9,17 @@ abs_file_path = os.path.join(script_dir, rel_path)
 background=[255,255,255] # white
 
 class PGRobot(pygame.sprite.Sprite):
-    def __init__(self,screen,filename='thymio.png',size=(32,32)):#size is (width,height). Measurement in pixels
+    def __init__(self,window,filename='thymio.png',size=(32,32)):#size is (width,height). Measurement in pixels
         self.image = pygame.image.load(abs_file_path+filename).convert_alpha()
         self._image = self.image
-        self.screen = screen
-        self._screenwidth,self._screenheight = self.screen.get_size()
+        self.window = window
+        self._screenwidth,self._screenheight = self.window.screen.get_size()
         self._position=(self._screenwidth//2, self._screenheight//2)
         self._dimension = self._image.get_rect()
     
     def setposition(self,x,y):#position is a Point object.
         self._position = (x,y)
-        self.screen.blit(self.image,self._position)
+        self.window.screen.blit(self.image,self._position)
         pygame.display.update()
 
 
@@ -27,11 +27,11 @@ class PGRobot(pygame.sprite.Sprite):
         self._image = pygame.transform.rotate(self.image, degrees)
         self.rect = self._image.get_rect()
         newpos = (self._position[0]-self.rect.center[0],self._position[1]-self.rect.center[1])
-        self.screen.blit(self._image, newpos)
+        self.window.screen.blit(self._image, newpos)
         pygame.display.update()
-        pygame.draw.rect(self.screen, [255, 255, 255], pygame.Rect((newpos), (80, 80)))
+        pygame.draw.rect(self.window.screen, [255, 255, 255], pygame.Rect((newpos), (80, 80)))
         pygame.display.update()
-        self.screen.blit(self._image,newpos)
+        self.window.screen.blit(self._image,newpos)
         pygame.display.update()
 
         
@@ -56,14 +56,16 @@ class PGRobot(pygame.sprite.Sprite):
         
         
 
-class PGScreen:
+class PGWindow:
     def __init__(self,size=(800,600)):
         self.screen = pygame.display.set_mode(size)
         self.screen.fill([255, 255, 255])
+        self.size = size
 
     def setworldcoordinates(self,llx,lly,urx,ury):
         width = abs(urx-llx)
         height = abs(ury-lly)
         self.screen=pygame.display.set_mode((width,height))
+        self.size = (width, height)
         self.screen.fill([255, 255, 255])
         
