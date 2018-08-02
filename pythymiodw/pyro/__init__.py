@@ -3,12 +3,12 @@ import sys
 import Pyro4
 import subprocess
 import signal
-from pythymiodw import ThymioSimMR
+from pythymiodw import ThymioSim3D
 import time
 from pythymiodw.io import ProxGround
 
 
-class ThymioMR():
+class Thymio3D():
 	def __init__(self):
 		if sys.platform == 'win32':
 			self.pyro4ns_proc=subprocess.Popen(['pyro4-ns'], stdout=subprocess.PIPE, shell=True)			
@@ -20,7 +20,7 @@ class ThymioMR():
 			time.sleep(2)
 			self.pyro4daemon_proc=subprocess.Popen(['python -m pythymiodw.pyro.__main__'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)    
 		time.sleep(2)
-		self.robot = Pyro4.Proxy('PYRONAME:pythymiodw.thymiosimmr')
+		self.robot = Pyro4.Proxy('PYRONAME:pythymiodw.thymiosim3d')
 
 	def quit(self):
 		self.robot.quit()

@@ -717,7 +717,7 @@ class ThymioSim(Thymio):
 #         self.robot=PGRobot(self.window.screen)
 @Pyro4.expose
 @Pyro4.behavior(instance_mode="single")
-class ThymioSimMR(Thymio):
+class ThymioSim3D(Thymio):
     def __init__(self,**kwargs):
         super().__init__()
         self.leftv=0

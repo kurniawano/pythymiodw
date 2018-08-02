@@ -1,7 +1,7 @@
-from pythymiodw.pyro import ThymioMR
+from pythymiodw.pyro import Thymio3D
 import time
 
-thymio = ThymioMR()
+thymio = Thymio3D()
 print('Changing wheel speed.')
 thymio.wheels(100,101)
 print('Now run C# project to change prox_horizontal and prox_ground.')
