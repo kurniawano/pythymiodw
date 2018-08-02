@@ -716,6 +716,12 @@ class ThymioSimPG(ThymioSim):
         self.window = PGWindow()
         self.robot = PGRobot(self.window)
 
+    def run(self):
+        super().run()
+        self.window.screen.fill(self.window.color)
+        if self.world != None:
+            self.world.draw_world(self.robot)
+
     def sleep(self,n):
         t=0
         while t<n:
@@ -726,4 +732,16 @@ class ThymioSimPG(ThymioSim):
                     sys.exit()
             self.run()
             t+=dt/1000
-            time.sleep(dt/1000)        
+            time.sleep(dt/1000)   
+                 
+    def get_new_point(self, rad):
+        angle=self.robot.heading()
+        angle_rad=angle/180.0*math.pi  
+        x,y=self.robot.position()
+        rect = self.robot._image.get_rect()
+        x  = x+rect.center[0]-7.7
+        y = y+rect.center[1]-7.7
+        dx=rad*math.cos(angle_rad)
+        dy=rad*math.sin(angle_rad)
+        new_x,new_y=x+dx,y+dy
+        return new_x, new_y

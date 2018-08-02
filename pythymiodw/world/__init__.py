@@ -114,7 +114,6 @@ class PGWorld(World):
             
         ul_x = block.ll.x
         ul_y = robot.window.size[1] - block.ll.y - width
-        print(robot.window.size, ul_x, ul_y)
         if isinstance(block, Floor):
             robot.window.screen.fill(block.color, rect=[ul_x,ul_y,length,width])
         else:
