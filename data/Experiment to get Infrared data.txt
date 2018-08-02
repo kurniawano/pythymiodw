@@ -1,0 +1,8 @@
+Experiment to get Infrared data.
+1. write code to print prox_horizontal[2] (front sensor)
+2. change distance and write recorded reading.
+
+Data Format:
+column A: distance in cm including offset of ruler
+column B: distance in cm excluding offset of ruler
+column C: infrared reading by Thymio
