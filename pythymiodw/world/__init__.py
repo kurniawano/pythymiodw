@@ -18,6 +18,28 @@ class Block:
         else:
             return False
 
+    def is_line_intersect(self, line):
+        x_len = self.ur.x - self.ll.x
+        y_len = self.ur.y - self.ll.y
+        corner1 = self.ll
+        corner2 = Point(corner1.x + x_len, corner1.y)
+        corner3 = Point(corner1.x, corner1.y + y_len)
+        corner4 = self.ur
+        ls = []
+        lines = [Line(corner1, corner2), Line(corner1, corner3), 
+                Line(corner2, corner4), Line(corner3, corner4)]
+        for edge in lines:
+            x = line.is_line_intersect(edge)
+            if x:
+                ls.append(x)
+        if ls == []:
+            return False
+        final = []
+        for x, y in ls:
+            final.append(((line.start.x - x)**2 + (line.start.y -y)**2)**0.5)
+        return ls[final.index(min(final))], min(final)
+                        
+
 class Floor(Block):
     def __init__(self, ll, ur, color=(255,255,255)):
         Block.__init__(self,ll, ur)
@@ -118,3 +140,39 @@ class PGWorld(World):
             robot.window.screen.fill(block.color, rect=[ul_x,ul_y,length,width])
         else:
             robot.window.screen.fill([0, 0, 0],rect=[ul_x,ul_y,length,width])
+
+
+class Line:
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+        if self.end.x != self.start.x:
+            self.grad = (self.end.y-self.start.y)/(self.end.x-self.start.x)
+            self.c = self.start.y-self.grad*self.start.x
+        else:
+            self.grad = None
+            self.c = None
+        
+
+    def is_line_intersect(self, line):
+        if self.grad!=None and line.grad==None:
+            y = self.grad*line.start.x+self.c
+            x = line.start.x
+            if (self.start.x<=x<=self.end.x or self.start.x>=x>=self.end.x) and (line.start.y<=y<=line.end.y or line.start.y>=y>=line.end.y):
+                return (x , y)
+            else:
+                return False
+        elif line.grad!=None and self.grad==None:
+            y = line.grad*self.start.x+line.c
+            x = self.start.x
+            if (line.start.x<=x<=line.end.x or line.start.x>=x>=line.end.x) and (self.start.y<=y<=self.end.y or self.start.y>=y>=self.end.y):
+                return (x, y)
+            else:
+                return False
+        if self.grad==line.grad:
+            return None
+        x = (self.c-line.c)/(line.grad-self.grad)
+        y = self.grad*x+self.c
+        if (self.start.x<=x<=self.end.x or self.start.x>=x>=self.end.x) and (self.start.y<=y<=self.end.y or self.start.y>=y>=self.end.y) and (line.start.x<=x<=line.end.x or line.start.x>=x>=line.end.x) and (line.start.y<=y<=line.end.y or line.start.y>=y>=line.end.y):
+            return (x,y)
+        return False
