@@ -6,8 +6,6 @@ import sys
 
 class ThymioSMSim():
     def __init__(self,MySM,world=None):
-        global base_class
-        base_class=ThymioSim
         self.thymio=ThymioSM2(MySM,world)
     
     def start(self):
@@ -31,8 +29,6 @@ class ThymioSMSim():
 
 class ThymioSMReal(Thread):
     def __init__(self, MySM,world=None):
-        global base_class
-        base_class=ThymioReal
         Thread.__init__(self)
         self.thymio=ThymioSM1(MySM)
         self.stopped=Event()
@@ -54,7 +50,7 @@ class ThymioSMReal(Thread):
 
 class ThymioSM1(ThymioReal):
     def __init__(self,MySM):
-        base_class.__init__(self)
+        super().__init__(self)
         self.behaviour=MySM
         self.input=Input()
         self.behaviour.start()
@@ -78,7 +74,7 @@ class ThymioSM1(ThymioReal):
 
 class ThymioSM2(ThymioSim):
     def __init__(self,MySM,world):
-        base_class.__init__(self,world)
+        super().__init__(self,world)
         self.behaviour=MySM
         self.input=Input()
         self.behaviour.start()
