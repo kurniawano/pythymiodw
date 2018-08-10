@@ -788,8 +788,8 @@ class ThymioSim3D(Thymio):
         self._rightv = val 
     
     def wheels(self, l, r):
-        self._leftv=l
-        self._rightv=r
+        self._leftv=int(l)
+        self._rightv=int(r)
 
     @property
     def prox_horizontal(self):
