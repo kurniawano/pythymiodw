@@ -155,24 +155,32 @@ class Line:
         
 
     def is_line_intersect(self, line):
+        eps = 1e-7
         if self.grad!=None and line.grad==None:
             y = self.grad*line.start.x+self.c
             x = line.start.x
-            if (self.start.x<=x<=self.end.x or self.start.x>=x>=self.end.x) and (line.start.y<=y<=line.end.y or line.start.y>=y>=line.end.y):
+            if (self.start.x-eps<=x<=self.end.x+eps or self.start.x+eps>=x>=self.end.x-eps) and \
+            (line.start.y-eps<=y<=line.end.y+eps or line.start.y+eps>=y>=line.end.y-eps):
                 return (x , y)
             else:
                 return False
         elif line.grad!=None and self.grad==None:
             y = line.grad*self.start.x+line.c
             x = self.start.x
-            if (line.start.x<=x<=line.end.x or line.start.x>=x>=line.end.x) and (self.start.y<=y<=self.end.y or self.start.y>=y>=self.end.y):
+            if (line.start.x-eps<=x<=line.end.x+eps or line.start.x+eps>=x>=line.end.x-eps) and \
+            (self.start.y-eps<=y<=self.end.y+eps or self.start.y+eps>=y>=self.end.y-eps):
                 return (x, y)
             else:
+
                 return False
         if self.grad==line.grad:
-            return None
+            return False
         x = (self.c-line.c)/(line.grad-self.grad)
         y = self.grad*x+self.c
-        if (self.start.x<=x<=self.end.x or self.start.x>=x>=self.end.x) and (self.start.y<=y<=self.end.y or self.start.y>=y>=self.end.y) and (line.start.x<=x<=line.end.x or line.start.x>=x>=line.end.x) and (line.start.y<=y<=line.end.y or line.start.y>=y>=line.end.y):
+
+        if (self.start.x-eps<=x<=self.end.x+eps or self.start.x+eps>=x>=self.end.x-eps) and \
+        (self.start.y-eps<=y<=self.end.y+eps or self.start.y+eps>=y>=self.end.y-eps) and \
+        (line.start.x-eps<=x<=line.end.x+eps or line.start.x+eps>=x>=line.end.x-eps) and \
+        (line.start.y-eps<=y<=line.end.y+eps or line.start.y+eps>=y>=line.end.y-eps):
             return (x,y)
         return False
