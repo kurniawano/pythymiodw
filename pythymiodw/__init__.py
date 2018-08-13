@@ -15,7 +15,7 @@ if sys.platform =='linux' or sys.platform=='linux2':
 
 from threading import Thread
 from . import io 
-from .world import Point
+from .world import Point, Line, Floor, Wall
 from .pg import PGWindow, PGRobot
 import math
 
@@ -590,7 +590,7 @@ class ThymioReal(Thymio):
         self.loop.quit()
 
 class ThymioSim(Thymio):
-    def __init__(self,world=None):
+    def __init__(self,world=None, scale = 1):
         super().__init__()
         self.forward_velocity=0.0
         self.rotational_velocity=0.0
@@ -598,10 +598,11 @@ class ThymioSim(Thymio):
         self.rightv=0
         self.heading=0.0
         self.world=world
+        self.scale = scale
         if self.world!=None:
             ll,ur=self.world.get_world_boundaries()
             self.window.setworldcoordinates(ll.x,ll.y,ur.x,ur.y)
-            self.world.draw_world(self.robot)
+            self.world.draw_world(self.robot, self.scale)
             self.init_pos=self.world.get_init_pos()
             self.heading=self.world.get_init_heading()
         else:
@@ -656,12 +657,12 @@ class ThymioSim(Thymio):
     def check_world(self, fv):
         if self.world==None:
             return True
-        rad=fv*dt/1000.0
+        rad=fv*dt/1000.0*self.scale
         new_x, new_y = self.get_new_point(rad)
-        if self.world.is_overlap(Point(new_x,new_y)):
+        if self.world.is_overlap(Point(new_x,new_y), self.scale):
             return False
         ll,ur=self.world.get_world_boundaries()
-        if new_x<ll.x or new_x > ur.x or new_y<ll.y or new_y>ur.y:
+        if new_x<ll.x*self.scale or new_x > ur.x*self.scale or new_y<ll.y*self.scale or new_y>ur.y*self.scale:
             return False
         return True
         
@@ -708,19 +709,20 @@ class ThymioSim(Thymio):
         return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
 
 class ThymioSimPG(ThymioSim):
-    def __init__(self, world = None):
+    def __init__(self, world = None, scale = 1):
         pygame.init()
-        super().__init__(world)
+        self.scale = scale
+        super().__init__(world, scale)
 
     def open(self):
-        self.window = PGWindow()
-        self.robot = PGRobot(self.window)
+        self.window = PGWindow(scale = self.scale)
+        self.robot = PGRobot(self.window, scale = self.scale)
 
     def run(self):
         super().run()
         self.window.screen.fill(self.window.color)
         if self.world != None:
-            self.world.draw_world(self.robot)
+            self.world.draw_world(self.robot, self.scale)
 
     def sleep(self,n):
         t=0
@@ -745,3 +747,43 @@ class ThymioSimPG(ThymioSim):
         dy=rad*math.sin(angle_rad)
         new_x,new_y=x+dx,y+dy
         return new_x, new_y
+
+    def check_floor(self):
+        left = None
+        right = None
+
+    def get_prox_horizontal(self):
+
+        self._prox_horizontal=[0 for i in range(7)]
+        if self.world!=None:
+            prox_horizontal = self.robot.get_horizontal_sensor_position()
+            range_horizontal = self.robot.get_range_points_of_sensor()
+            dic = {}
+            for i in range(7):
+                dic[i] = Line(Point(prox_horizontal[i][0], prox_horizontal[i][1]), 
+                    Point(range_horizontal[i][0], range_horizontal[i][1]))
+            distances = {}
+            for block in self.world.blocks:
+                if isinstance(block, Floor):
+                    continue
+                for i in range(7):
+                    intersect_point = block.is_line_intersect(dic[i])
+                    if i == 2:
+                        print(i, dic[i].start.x, dic[i].start.y, dic[i].end.x, dic[i].end.y, intersect_point)
+                    if intersect_point!=False:
+                        point_xy, dist_min = intersect_point
+                        distances[i] = dist_min/self.scale
+            for i in range(7):
+                try:
+                    A = 4.76569216e5
+                    B = 4.14625464
+                    C = 9.6766127e1
+
+                    reading = A/(distances[i]*distances[i] + 
+                        B*distances[i] + C)
+                    self._prox_horizontal[i] = reading
+                except Exception as e:
+                    self._prox_horizontal[i] = 0
+
+        return self._prox_horizontal
+        

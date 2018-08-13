@@ -11,16 +11,16 @@ class Block:
         self.ll=ll
         self.ur=ur
 
-    def is_overlap(self,p):
-        if self.ll.x <= p.x <= self.ur.x and \
-          self.ll.y <= p.y <= self.ur.y:
+    def is_overlap(self,p, scale=1):
+        if self.ll.x*scale <= p.x <= self.ur.x*scale and \
+          self.ll.y*scale <= p.y <= self.ur.y*scale:
             return True
         else:
             return False
 
     def is_line_intersect(self, line):
-        x_len = self.ur.x - self.ll.x
-        y_len = self.ur.y - self.ll.y
+        x_len = abs(self.ur.x - self.ll.x)
+        y_len = abs(self.ur.y - self.ll.y)
         corner1 = self.ll
         corner2 = Point(corner1.x + x_len, corner1.y)
         corner3 = Point(corner1.x, corner1.y + y_len)
@@ -84,9 +84,9 @@ class World:
     def get_init_heading(self):
         return self.init_heading
 
-    def is_overlap(self,p):
+    def is_overlap(self,p, scale=1):
         for b in self.blocks:
-            if b.is_overlap(p):
+            if b.is_overlap(p, scale):
                 return True
         return False
 
@@ -129,13 +129,19 @@ class World:
         t.penup()
 
 class PGWorld(World):
-    def draw_block(self, robot, block):
+    def draw_world(self,robot, scale=1):
+        for b in self.blocks:
+            self.draw_block(robot,b, scale)
+
+    def draw_block(self, robot, block, scale = 1):
         assert(block.ll.x<=block.ur.x and block.ll.y<=block.ur.y)
-        length = abs(float(block.ur.x) - float(block.ll.x))
-        width = abs(float(block.ur.y)- float(block.ll.y))
+        length = abs(float(block.ur.x) - float(block.ll.x))*scale
+        width = abs(float(block.ur.y)- float(block.ll.y))*scale
             
-        ul_x = block.ll.x
-        ul_y = robot.window.size[1] - block.ll.y - width
+        ul_x = block.ll.x * scale
+        ul_y = (robot.window.size[1] - block.ll.y*scale - width)
+        ll, ur = self.get_world_boundaries()
+
         if isinstance(block, Floor):
             robot.window.screen.fill(block.color, rect=[ul_x,ul_y,length,width])
         else:
