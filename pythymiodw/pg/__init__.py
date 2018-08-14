@@ -69,16 +69,15 @@ class PGRobot(pygame.sprite.Sprite):
         head = self._heading%360
         #robot = pygame.transform.rotate(self._image, -head)
         x = self._image.get_rect()
-        print(self._position)
         x_cpos = self._position[0] - 3*math.cos(head*math.pi/180)*self._scale
         y_cpos = self._position[1] - 3*math.sin(head*math.pi/180)*self._scale
         return x_cpos, y_cpos
 
     def get_center_robot(self):
-        x_pos, y_pos = self.get_center_wheels()
-        x_pos =  x_pos + 3*math.cos(self._heading*math.pi/180)*self._scale
-        y_pos =  y_pos - 3*math.sin(self._heading*math.pi/180)*self._scale
-        return x_pos, y_pos
+        # x_pos, y_pos = self.get_center_wheels()
+        # x_pos =  x_pos + 3*math.cos(self._heading*math.pi/180)*self._scale
+        # y_pos =  y_pos - 3*math.sin(self._heading*math.pi/180)*self._scale
+        return self._position[0], self._position[1]
 
     def get_horizontal_sensor_position(self):
         x, y = self.get_center_wheels()

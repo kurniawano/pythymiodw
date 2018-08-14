@@ -771,8 +771,8 @@ class ThymioSimPG(ThymioSim):
                     continue
                 for i in range(7):
                     intersect_point = block.is_line_intersect(dic[i])
-                    if i == 2:
-                        print(i, dic[i].start.x, dic[i].start.y, dic[i].end.x, dic[i].end.y, intersect_point)
+                    #if i == 2:
+                     #=#   print(i, dic[i].start.x, dic[i].start.y, dic[i].end.x, dic[i].end.y, intersect_point)
                     if intersect_point!=False:
                         point_xy, dist_min = intersect_point
                         distances[i] = dist_min/self.scale
