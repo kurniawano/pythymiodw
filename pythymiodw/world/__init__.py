@@ -147,7 +147,6 @@ class PGWorld(World):
         else:
             robot.window.screen.fill([0, 0, 0],rect=[ul_x,ul_y,length,width])
 
-
 class Line:
     def __init__(self, start, end):
         self.start = start

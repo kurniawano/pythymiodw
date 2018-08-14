@@ -609,7 +609,8 @@ class ThymioSim(Thymio):
             pos=self.robot.position()
             self.init_pos=Point(pos[0],pos[1])
             self.heading=0
-        self.robot.setposition(self.init_pos.x,self.init_pos.y)
+        width = self.window.size[1]
+        self.robot.setposition(self.init_pos.x*self.scale,self.init_pos.y*self.scale)
         self.robot.setheading(self.heading)
 
     def open(self):
@@ -670,8 +671,8 @@ class ThymioSim(Thymio):
         angle=self.robot.heading()
         angle_rad=angle/180.0*math.pi  
         x,y=self.robot.position()
-        dx=rad*math.cos(angle_rad)
-        dy=rad*math.sin(angle_rad)
+        dx=rad*math.cos(angle_rad)*self.scale
+        dy=rad*math.sin(angle_rad)*self.scale
         new_x,new_y=x+dx,y+dy
         return new_x, new_y
       
@@ -686,27 +687,28 @@ class ThymioSim(Thymio):
         return self._prox_horizontal
 
     def get_prox_ground(self):
-        posx,posy=self.robot.position()
-        delta=500
-        leftx=posx-1
-        rightx=posx+1
-        lefty=righty=posy
-        self._prox_ground_delta=[0,0]
-        self._prox_ground_reflected=[1000,1000]
-        self._prox_ground_ambiant=[1000,1000]
-        if self.world!=None:
-            if self.world.is_overlap(Point(leftx,lefty)):
-                self._prox_ground_reflected[0]=self._prox_ground_ambiant[0]-delta
-            else:
-                self._prox_ground_reflected[0]=self._prox_ground_ambiant[0]
+        pass
+        # posx,posy=self.robot.position()
+        # delta=500
+        # leftx=posx-1
+        # rightx=posx+1
+        # lefty=righty=posy
+        # self._prox_ground_delta=[0,0]
+        # self._prox_ground_reflected=[1000,1000]
+        # self._prox_ground_ambiant=[1000,1000]
+        # if self.world!=None:
+        #     if self.world.is_overlap(Point(leftx,lefty)):
+        #         self._prox_ground_reflected[0]=self._prox_ground_ambiant[0]-delta
+        #     else:
+        #         self._prox_ground_reflected[0]=self._prox_ground_ambiant[0]
 
-            if self.world.is_overlap(Point(rightx,righty)):
-                self._prox_ground_reflected[1]=self._prox_ground_ambiant[1]-delta
-            else:
-                self._prox_ground_reflected[1]=self._prox_ground_ambiant[1]
-        self._prox_ground_delta[0]=self._prox_ground_ambiant[0]-self._prox_ground_reflected[0] 
-        self._prox_ground_delta[1]=self._prox_ground_ambiant[1]-self._prox_ground_reflected[1] 
-        return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
+        #     if self.world.is_overlap(Point(rightx,righty)):
+        #         self._prox_ground_reflected[1]=self._prox_ground_ambiant[1]-delta
+        #     else:
+        #         self._prox_ground_reflected[1]=self._prox_ground_ambiant[1]
+        # self._prox_ground_delta[0]=self._prox_ground_ambiant[0]-self._prox_ground_reflected[0] 
+        # self._prox_ground_delta[1]=self._prox_ground_ambiant[1]-self._prox_ground_reflected[1] 
+        # return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
 
 class ThymioSimPG(ThymioSim):
     def __init__(self, world = None, scale = 1):
@@ -741,11 +743,11 @@ class ThymioSimPG(ThymioSim):
         angle_rad=angle/180.0*math.pi  
         x,y=self.robot.position()
         rect = self.robot._image.get_rect()
-        x  = x+rect.center[0]-7.7
-        y = y+rect.center[1]-7.7
-        dx=rad*math.cos(angle_rad)
-        dy=rad*math.sin(angle_rad)
-        new_x,new_y=x+dx,y+dy
+        x  = x+rect.center[0]*math.cos(angle_rad)
+        y = y+rect.center[1]*math.sin(angle_rad)
+        dx=rad*math.cos(angle_rad)*self.scale
+        dy=rad*math.sin(angle_rad)*self.scale
+        new_x,new_y=x+dx,y-dy
         return new_x, new_y
 
     def check_floor(self):

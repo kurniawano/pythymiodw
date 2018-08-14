@@ -20,7 +20,9 @@ class PGRobot(pygame.sprite.Sprite):
     def setposition(self,x,y):#position is a Point object.
         self._position = (x,y) # top left corner
         rect = self._image.get_rect()
-        newpos = (self._position[0] - rect.center[0], self._position[1] - rect.center[1]) # centralized position
+        width = self.window.size[1]
+        y= width - y
+        newpos = (x - rect.center[0], y - rect.center[1]) # centralized position
         self.window.screen.blit(self._image, newpos)
         pygame.display.update()
 
@@ -46,7 +48,7 @@ class PGRobot(pygame.sprite.Sprite):
         dx, dy = DIRECTION_VECTOR_LOOKUP[int(self._heading)]
         dx *= self._scale
         dy *= self._scale
-        self.setposition(self._position[0] + dx, self._position[-1] - dy)
+        self.setposition(self._position[0] + dx, self._position[-1] + dy)
 
     def position(self):
         return self._position
