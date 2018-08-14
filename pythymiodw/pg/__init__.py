@@ -55,14 +55,15 @@ class PGRobot(pygame.sprite.Sprite):
         
     def get_ground_sensor_position(self):
         x_pos, y_pos = self.get_center_wheels()
-        rect = self._image.get_rect()
-        x_pos =  x_pos + 7*math.cos(self._heading*math.pi/180)*self._scale
-        y_pos =  y_pos -7*math.sin(self._heading*math.pi/180)*self._scale
-                   
-        x_pos1 = x_pos - math.sin(self._heading*math.pi/180)*self._scale
-        y_pos1 = y_pos - math.cos(self._heading*math.pi/180)*self._scale
-        x_pos2 = x_pos + math.sin(self._heading*math.pi/180)*self._scale
-        y_pos2 = y_pos + math.cos(self._heading*math.pi/180)*self._scale
+        x_pos = x_pos + 7 * math.cos(self._heading * math.pi / 180) * \
+                self._scale
+        y_pos = y_pos + 7 * math.sin(self._heading * math.pi / 180) * \
+                self._scale
+        print(x_pos, y_pos)
+        x_pos1 = x_pos - math.sin(self._heading * math.pi / 180) * self._scale
+        y_pos1 = y_pos + math.cos(self._heading * math.pi / 180) * self._scale
+        x_pos2 = x_pos + math.sin(self._heading * math.pi / 180) * self._scale
+        y_pos2 = y_pos - math.cos(self._heading * math.pi / 180) * self._scale
         return ((x_pos1, y_pos1), (x_pos2, y_pos2))
 
     def get_center_wheels(self):
