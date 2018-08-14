@@ -610,7 +610,6 @@ class ThymioSim(Thymio):
             pos=self.robot.position()
             self.init_pos=Point(pos[0],pos[1])
             self.heading=0
-        width = self.window.size[1]
         self.robot.setposition(self.init_pos.x,self.init_pos.y)
         self.robot.setheading(self.heading)
 

@@ -119,7 +119,7 @@ class World:
         ur = Point(max_x, max_y)
         return ll, ur
 
-    def draw_world(self, t):
+    def draw_world(self, t, scale=1):
         for b in self.blocks:
             self.draw_block(t, b)
 
