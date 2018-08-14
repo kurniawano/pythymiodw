@@ -69,20 +69,9 @@ class PGRobot(pygame.sprite.Sprite):
         head = self._heading%360
         #robot = pygame.transform.rotate(self._image, -head)
         x = self._image.get_rect()
-        if 0<=head<90:      
-            x_cpos = self._position[0]+x[2]-5.5*math.sin(head*math.pi/180)*self._scale
-            y_cpos = self._position[1]+5.5*math.cos(head*math.pi/180)*self._scale
-        elif 90<=head<180:
-            x_cpos = self._position[0]+x[2]-5.5*math.sin(math.pi-head*math.pi/180)*self._scale
-            y_cpos = self._position[1]+5.5*math.cos(math.pi-head*math.pi/180)*self._scale
-        elif 180<=head<270:
-            x_cpos = self._position[0]-5.5*math.sin(-math.pi+head*math.pi/180)*self._scale
-            y_cpos = self._position[1]+x[3]-5.5*math.cos(-math.pi+head*math.pi/180)*self._scale
-        elif 270<=head<360:            
-            x_cpos = self._position[0]+5.5*math.sin(2*math.pi - head*math.pi/180)*self._scale
-            y_cpos = self._position[1]+x[3]-5.5*math.cos(2*math.pi - head*math.pi/180)*self._scale
-        x_cpos = x_cpos - 8*math.cos(head*math.pi/180)*self._scale
-        y_cpos = y_cpos + 8*math.sin(head*math.pi/180)*self._scale
+        print(self._position)
+        x_cpos = self._position[0] - 3*math.cos(head*math.pi/180)*self._scale
+        y_cpos = self._position[1] - 3*math.sin(head*math.pi/180)*self._scale
         return x_cpos, y_cpos
 
     def get_center_robot(self):
