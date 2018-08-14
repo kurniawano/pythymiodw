@@ -603,14 +603,15 @@ class ThymioSim(Thymio):
             ll,ur=self.world.get_world_boundaries()
             self.window.setworldcoordinates(ll.x,ll.y,ur.x,ur.y)
             self.world.draw_world(self.robot, self.scale)
-            self.init_pos=self.world.get_init_pos()
+            init_pos=self.world.get_init_pos()
+            self.init_pos=Point(init_pos.x*self.scale, init_pos.y*self.scale)
             self.heading=self.world.get_init_heading()
         else:
             pos=self.robot.position()
             self.init_pos=Point(pos[0],pos[1])
             self.heading=0
         width = self.window.size[1]
-        self.robot.setposition(self.init_pos.x*self.scale,self.init_pos.y*self.scale)
+        self.robot.setposition(self.init_pos.x,self.init_pos.y)
         self.robot.setheading(self.heading)
 
     def open(self):

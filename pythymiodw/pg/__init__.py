@@ -134,7 +134,7 @@ class PGRobot(pygame.sprite.Sprite):
         return ((x0,y0),(x1,y1),(x2,y2),(x3,y3),(x4,y4), (x5, y5), (x6, y6))
 
 class PGWindow:
-    def __init__(self,size=(200,200), color=(255,255,255), scale = 1):
+    def __init__(self,size=(100,100), color=(255,255,255), scale = 1):
         size = size[0]*scale, size[1]*scale
         self.scale = scale
         self.size = size
