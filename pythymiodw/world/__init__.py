@@ -19,26 +19,26 @@ class Block:
         else:
             return False
 
-    def is_line_intersect(self, line):
+    def is_line_intersect(self, line, scale=1):
         x_len = abs(self.ur.x - self.ll.x)
         y_len = abs(self.ur.y - self.ll.y)
-        corner1 = self.ll
+        corner1 = Point(self.ll.x, self.ll.y)
         corner2 = Point(corner1.x + x_len, corner1.y)
         corner3 = Point(corner1.x, corner1.y + y_len)
-        corner4 = self.ur
+        corner4 = Point(self.ur.x, self.ur.y)
         ls = []
         lines = [Line(corner1, corner2), Line(corner1, corner3),
                  Line(corner2, corner4), Line(corner3, corner4)]
         for edge in lines:
-            x = line.is_line_intersect(edge)
+            x = line.is_line_intersect(edge, scale)
             if x:
                 ls.append(x)
         if ls == []:
             return False
         final = []
         for x, y in ls:
-            final.append(((line.start.x - x) ** 2 +
-                          (line.start.y - y) ** 2) ** 0.5)
+            final.append(((line.start.x * scale - x) ** 2 +
+                          (line.start.y * scale - y) ** 2) ** 0.5)
         return ls[final.index(min(final))], min(final)
 
 
@@ -169,40 +169,40 @@ class Line:
             self.grad = None
             self.c = None
 
-    def is_line_intersect(self, line):
+    def is_line_intersect(self, line, scale=1):
         eps = 1e-7
         if self.grad is not None and line.grad is None:
-            y = self.grad * line.start.x + self.c
-            x = line.start.x
-            if (self.start.x - eps <= x <= self.end.x + eps or
-                self.start.x + eps >= x >= self.end.x - eps) and \
-                (line.start.y - eps <= y <= line.end.y + eps or
-                 line.start.y + eps >= y >= line.end.y - eps):
+            y = self.grad * line.start.x * scale + self.c
+            x = line.start.x * scale
+            if (self.start.x * scale - eps <= x <= self.end.x * scale + eps or
+                self.start.x * scale + eps >= x >= self.end.x * scale - eps) and \
+                (line.start.y * scale - eps <= y <= line.end.y * scale + eps or
+                 line.start.y * scale + eps >= y >= line.end.y * scale - eps):
                 return (x, y)
             else:
                 return False
         elif line.grad is not None and self.grad is None:
-            y = line.grad * self.start.x + line.c
-            x = self.start.x
-            if (line.start.x - eps <= x <= line.end.x + eps or
-                line.start.x + eps >= x >= line.end.x - eps) and \
-                (self.start.y - eps <= y <= self.end.y + eps or
-                 self.start.y + eps >= y >= self.end.y - eps):
+            y = line.grad * self.start.x * scale + line.c
+            x = self.start.x * scale
+            if (line.start.x * scale - eps <= x <= line.end.x * scale + eps or
+                line.start.x * scale + eps >= x >= line.end.x * scale- eps) and \
+                (self.start.y * scale - eps <= y <= self.end.y * scale + eps or
+                 self.start.y * scale + eps >= y >= self.end.y * scale - eps):
                 return (x, y)
             else:
                 return False
         if self.grad == line.grad:
             return False
-        x = (self.c - line.c) / (line.grad - self.grad)
+        x = (self.c - line.c) / (line.grad - self.grad) * scale
         y = self.grad * x + self.c
 
-        if (self.start.x - eps <= x <= self.end.x + eps or
-            self.start.x + eps >= x >= self.end.x - eps) and \
-            (self.start.y - eps <= y <= self.end.y + eps or
-             self.start.y + eps >= y >= self.end.y - eps) and \
-             (line.start.x - eps <= x <= line.end.x + eps or
-              line.start.x + eps >= x >= line.end.x - eps) and \
-              (line.start.y - eps <= y <= line.end.y + eps or
-               line.start.y + eps >= y >= line.end.y - eps):
+        if (self.start.x * scale - eps <= x <= self.end.x * scale + eps or
+            self.start.x * scale + eps >= x >= self.end.x * scale - eps) and \
+            (self.start.y * scale - eps <= y <= self.end.y * scale + eps or
+             self.start.y * scale + eps >= y >= self.end.y * scale - eps) and \
+             (line.start.x * scale - eps <= x <= line.end.x * scale + eps or
+              line.start.x * scale + eps >= x >= line.end.x * scale - eps) and \
+              (line.start.y * scale - eps <= y <= line.end.y * scale + eps or
+               line.start.y * scale + eps >= y >= line.end.y * scale - eps):
             return (x, y)
         return False

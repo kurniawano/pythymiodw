@@ -687,28 +687,27 @@ class ThymioSim(Thymio):
         return self._prox_horizontal
 
     def get_prox_ground(self):
-        pass
-        # posx,posy=self.robot.position()
-        # delta=500
-        # leftx=posx-1
-        # rightx=posx+1
-        # lefty=righty=posy
-        # self._prox_ground_delta=[0,0]
-        # self._prox_ground_reflected=[1000,1000]
-        # self._prox_ground_ambiant=[1000,1000]
-        # if self.world!=None:
-        #     if self.world.is_overlap(Point(leftx,lefty)):
-        #         self._prox_ground_reflected[0]=self._prox_ground_ambiant[0]-delta
-        #     else:
-        #         self._prox_ground_reflected[0]=self._prox_ground_ambiant[0]
+        posx,posy=self.robot.position()
+        delta=500
+        leftx=posx-1
+        rightx=posx+1
+        lefty=righty=posy
+        self._prox_ground_delta=[0,0]
+        self._prox_ground_reflected=[1000,1000]
+        self._prox_ground_ambiant=[1000,1000]
+        if self.world!=None:
+            if self.world.is_overlap(Point(leftx,lefty)):
+                self._prox_ground_reflected[0]=self._prox_ground_ambiant[0]-delta
+            else:
+                self._prox_ground_reflected[0]=self._prox_ground_ambiant[0]
 
-        #     if self.world.is_overlap(Point(rightx,righty)):
-        #         self._prox_ground_reflected[1]=self._prox_ground_ambiant[1]-delta
-        #     else:
-        #         self._prox_ground_reflected[1]=self._prox_ground_ambiant[1]
-        # self._prox_ground_delta[0]=self._prox_ground_ambiant[0]-self._prox_ground_reflected[0] 
-        # self._prox_ground_delta[1]=self._prox_ground_ambiant[1]-self._prox_ground_reflected[1] 
-        # return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
+            if self.world.is_overlap(Point(rightx,righty)):
+                self._prox_ground_reflected[1]=self._prox_ground_ambiant[1]-delta
+            else:
+                self._prox_ground_reflected[1]=self._prox_ground_ambiant[1]
+        self._prox_ground_delta[0]=self._prox_ground_ambiant[0]-self._prox_ground_reflected[0] 
+        self._prox_ground_delta[1]=self._prox_ground_ambiant[1]-self._prox_ground_reflected[1] 
+        return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
 
 class ThymioSimPG(ThymioSim):
     def __init__(self, world = None, scale = 1):
@@ -755,34 +754,39 @@ class ThymioSimPG(ThymioSim):
         right = None
 
     def get_prox_horizontal(self):
-
-        self._prox_horizontal=[0 for i in range(7)]
-        if self.world!=None:
+        self._prox_horizontal = [0 for i in range(7)]
+        if self.world is not None:
             prox_horizontal = self.robot.get_horizontal_sensor_position()
             range_horizontal = self.robot.get_range_points_of_sensor()
             dic = {}
             for i in range(7):
-                dic[i] = Line(Point(prox_horizontal[i][0], prox_horizontal[i][1]), 
-                    Point(range_horizontal[i][0], range_horizontal[i][1]))
+                dic[i] = Line(Point(prox_horizontal[i][0],
+                                    prox_horizontal[i][1]),
+                                    Point(range_horizontal[i][0],
+                                          range_horizontal[i][1]))
             distances = {}
             for block in self.world.blocks:
                 if isinstance(block, Floor):
                     continue
                 for i in range(7):
-                    intersect_point = block.is_line_intersect(dic[i])
-                    #if i == 2:
-                     #=#   print(i, dic[i].start.x, dic[i].start.y, dic[i].end.x, dic[i].end.y, intersect_point)
-                    if intersect_point!=False:
+                    intersect_point = block.is_line_intersect(dic[i], self.scale)
+                    if i == 2:
+                        print(i, dic[i].start.x,
+                              dic[i].start.y,
+                              dic[i].end.x,
+                              dic[i].end.y,
+                              intersect_point)
+                    if intersect_point is not False:
                         point_xy, dist_min = intersect_point
-                        distances[i] = dist_min/self.scale
+                        distances[i] = dist_min / self.scale
             for i in range(7):
                 try:
                     A = 4.76569216e5
                     B = 4.14625464
                     C = 9.6766127e1
 
-                    reading = A/(distances[i]*distances[i] + 
-                        B*distances[i] + C)
+                    reading = A / (distances[i] * distances[i] +
+                                   B * distances[i] + C)
                     self._prox_horizontal[i] = reading
                 except Exception as e:
                     self._prox_horizontal[i] = 0
