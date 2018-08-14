@@ -87,20 +87,20 @@ class PGRobot(pygame.sprite.Sprite):
         # centre sensor
         head_rad = self._heading * math.pi / 180
         x2 = x + distance * math.cos(head_rad) * self._scale
-        y2 = y - distance * math.sin(head_rad) * self._scale
+        y2 = y + distance * math.sin(head_rad) * self._scale
         x3 = x + distance * math.cos(head_rad - math.pi / 8) * self._scale
-        y3 = y - distance * math.sin(head_rad - math.pi / 8) * self._scale
+        y3 = y + distance * math.sin(head_rad - math.pi / 8) * self._scale
         x4 = x + distance * math.cos(head_rad - math.pi / 4) * self._scale
-        y4 = y - distance * math.sin(head_rad - math.pi / 4) * self._scale
+        y4 = y + distance * math.sin(head_rad - math.pi / 4) * self._scale
         x1 = x + distance * math.cos(head_rad + math.pi / 8) * self._scale
-        y1 = y - distance * math.sin(head_rad + math.pi / 8) * self._scale
+        y1 = y + distance * math.sin(head_rad + math.pi / 8) * self._scale
         x0 = x + distance * math.cos(head_rad + math.pi / 4) * self._scale
-        y0 = y - distance * math.sin(head_rad + math.pi / 4) * self._scale
+        y0 = y + distance * math.sin(head_rad + math.pi / 4) * self._scale
         x_pos, y_pos = self.get_center_wheels()
         x6 = x_pos + 3 * math.sin(head_rad) * self._scale
-        y6 = y_pos + 3 * math.cos(head_rad) * self._scale
+        y6 = y_pos - 3 * math.cos(head_rad) * self._scale
         x5 = x_pos - 3 * math.sin(head_rad) * self._scale
-        y5 = y_pos - 3 * math.cos(head_rad) * self._scale
+        y5 = y_pos + 3 * math.cos(head_rad) * self._scale
         return ((x0, y0), (x1, y1), (x2, y2), (x3, y3), (x4, y4),
                 (x5, y5), (x6, y6))
 
