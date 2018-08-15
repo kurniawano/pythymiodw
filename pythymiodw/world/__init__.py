@@ -172,7 +172,7 @@ class Line:
     def is_line_intersect(self, line, scale=1):
         eps = 1e-7
         if self.grad is not None and line.grad is None:
-            y = self.grad * line.start.x * scale + self.c
+            y = (self.grad * line.start.x + self.c) * scale
             x = line.start.x * scale
             if (self.start.x * scale - eps <= x <= self.end.x * scale + eps or
                 self.start.x * scale + eps >= x >= self.end.x * scale - eps) and \
@@ -182,7 +182,7 @@ class Line:
             else:
                 return False
         elif line.grad is not None and self.grad is None:
-            y = line.grad * self.start.x * scale + line.c
+            y = (line.grad * self.start.x + line.c)* scale
             x = self.start.x * scale
             if (line.start.x * scale - eps <= x <= line.end.x * scale + eps or
                 line.start.x * scale + eps >= x >= line.end.x * scale- eps) and \
@@ -193,8 +193,10 @@ class Line:
                 return False
         if self.grad == line.grad:
             return False
-        x = (self.c - line.c) / (line.grad - self.grad) * scale
-        y = self.grad * x + self.c
+        x = (self.c - line.c) / (line.grad - self.grad) 
+        y = (self.grad * x + self.c)
+        x *= scale
+        y *= scale
 
         if (self.start.x * scale - eps <= x <= self.end.x * scale + eps or
             self.start.x * scale + eps >= x >= self.end.x * scale - eps) and \

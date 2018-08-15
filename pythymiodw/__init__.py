@@ -760,36 +760,29 @@ class ThymioSimPG(ThymioSim):
             range_horizontal = self.robot.get_range_points_of_sensor()
             dic = {}
             for i in range(7):
-                dic[i] = Line(Point(prox_horizontal[i][0],
-                                    prox_horizontal[i][1]),
-                                    Point(range_horizontal[i][0],
-                                          range_horizontal[i][1]))
-            distances = {}
+                dic[i] = Line(Point(prox_horizontal[i][0]/self.scale,
+                                    prox_horizontal[i][1]/self.scale),
+                                    Point(range_horizontal[i][0]/self.scale,
+                                          range_horizontal[i][1]/self.scale))
+            distances = [-1 for i in range(7)]
             for block in self.world.blocks:
                 if isinstance(block, Floor):
                     continue
                 for i in range(7):
                     intersect_point = block.is_line_intersect(dic[i], self.scale)
-                    if i == 2:
-                        print(i, dic[i].start.x,
-                              dic[i].start.y,
-                              dic[i].end.x,
-                              dic[i].end.y,
-                              intersect_point)
                     if intersect_point is not False:
                         point_xy, dist_min = intersect_point
                         distances[i] = dist_min / self.scale
             for i in range(7):
-                try:
+                if distances[i] == -1:
+                    self._prox_horizontal[i] = 0
+                else:
                     A = 4.76569216e5
                     B = 4.14625464
                     C = 9.6766127e1
-
                     reading = A / (distances[i] * distances[i] +
                                    B * distances[i] + C)
                     self._prox_horizontal[i] = reading
-                except Exception as e:
-                    self._prox_horizontal[i] = 0
 
         return self._prox_horizontal
         

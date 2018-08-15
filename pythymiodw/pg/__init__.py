@@ -105,7 +105,7 @@ class PGRobot(pygame.sprite.Sprite):
                 (x5, y5), (x6, y6))
 
     def get_range_points_of_sensor(self):
-        distance = 11
+        distance = 18
         x, y = self.get_center_wheels()
         head_rad = self._heading * math.pi / 180
         x2 = x + distance * math.cos(head_rad) * self._scale
@@ -118,7 +118,7 @@ class PGRobot(pygame.sprite.Sprite):
         y1 = y + distance * math.sin(head_rad + math.pi / 8) * self._scale
         x0 = x + distance * math.cos(head_rad + math.pi / 4) * self._scale
         y0 = y + distance * math.sin(head_rad + math.pi / 4) * self._scale
-        distance = 9
+        distance = 13
         x6 = x + 3 * math.sin(head_rad) * self._scale - \
              distance * math.cos(head_rad) * self._scale
         y6 = y - 3 * math.cos(head_rad) * self._scale - \
