@@ -11,6 +11,9 @@ if sys.platform =='linux' or sys.platform=='linux2':
     import dbus
     import dbus.mainloop.glib
     from gi.repository import GObject as gobject
+else:
+    import requests
+    import json
 
 from threading import Thread
 from . import io 
@@ -326,6 +329,11 @@ class Thymio:
 
 class ThymioReal(Thymio):
     def __init__(self,world=None):
+        if sys.platform =='linux' or sys.platform=='linux2':
+            self.bridge = 'asebamedulla'
+        else:
+            self.bridge = 'http'
+
         super().__init__()
         self.init_read()
 
@@ -343,11 +351,6 @@ class ThymioReal(Thymio):
             print(inst)
             self.quit()
 
-    def _run(self):
-        """Internal method to run the robot. This is called by run() and implemented by ThymioReal and ThymioSim.
-        """
-        pass
-
     def init_read(self):
         """Method to start running the robot in a thread. It calls run().
         """
@@ -356,33 +359,57 @@ class ThymioReal(Thymio):
 
     def open(self):
         self.device="thymio-II"
-        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        self.bus=dbus.SessionBus()
-        self.aseba_proc=subprocess.Popen(['asebamedulla "ser:name=Thymio-II"'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)    
-        time.sleep(2)
-        self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
-        node=self.network.GetNodesList()
-        progress=0
-        print('connecting: {:d}. \r'.format(progress),end='')
-        while node==[]:
+        if self.bridge == 'asebamedulla':
+
+            dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+            self.bus=dbus.SessionBus()
+            self.aseba_proc=subprocess.Popen(['asebamedulla "ser:name=Thymio-II"'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)    
+            time.sleep(2)
             self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
             node=self.network.GetNodesList()
-            sys.stdout.write('connecting: %d. \r'% progress)
-            sys.stdout.flush()
-            progress+=1
-        print()
-        print('connected to {!s:s}.'.format(node))
-        self.network.LoadScripts(os.path.dirname(os.path.realpath(__file__))+'/thymiohandlers.aesl')
-        self.loop=gobject.MainLoop()
-        self.handle=gobject.timeout_add(dt, self.main_loop)
+            progress=0
+            print('connecting: {:d}. \r'.format(progress),end='')
+            while node==[]:
+                self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
+                node=self.network.GetNodesList()
+                sys.stdout.write('connecting: %d. \r'% progress)
+                sys.stdout.flush()
+                progress+=1
+            print()
+            print('connected to {!s:s}.'.format(node))
+            self.network.LoadScripts(os.path.dirname(os.path.realpath(__file__))+'/thymiohandlers.aesl')
+            self.loop=gobject.MainLoop()
+            self.handle=gobject.timeout_add(dt, self.main_loop)
+        else:
+            #self.aseba_proc=subprocess.Popen(["asebahttp --autorestart -s 33333 --aesl thymiohandlers.aesl ser:name=Thymio"], stdout=subprocess.PIPE, shell=True)    
+            time.sleep(2)
+            self.httpaddr = 'http://localhost:3000/nodes/'
+            r = requests.get(self.httpaddr+self.device)
+            json_data = json.loads(r.text)
+            node = json_data['name']
+            progress = 0
+            print('connecting: {:d}. \r'.format(progress),end='')
+            while node==[]:
+                r=requests.get(self.httpaddr+self.device)
+                json_data = json.loads(r.text)
+                node = json_data['name']
+                sys.stdout.write('connecting: %d. \r'% progress)
+                sys.stdout.flush()
+                progress+=1
+            print()
+            print('connected to {!s:s}.'.format(node))
 
     def close(self):
-        Thymio.close(self)
-        os.killpg(os.getpgid(self.aseba_proc.pid), signal.SIGTERM)
+        super().close()
+        if self.bridge == 'asebamedulla':
+            os.killpg(os.getpgid(self.aseba_proc.pid), signal.SIGTERM)
+        #elif sys.platform=='win32':
+            #subprocess.call(['taskill','/F','/T','/PID', str(self.aseba_proc.pid)])
 
     def _run(self):
         try:
-            self.loop.run()
+            if self.bridge == 'asebamedulla':
+                self.loop.run()
         except:
             self.quit()
 
@@ -395,10 +422,26 @@ class ThymioReal(Thymio):
             return [int(dbus_array[x]) for x in range(0,size)]
 
     def set(self, node, var, value):
-        self.network.SetVariable(node,var,value)
+        if self.bridge == 'asebamedulla':
+            self.network.SetVariable(node,var,value)
+        else:
+            post_str = self.httpaddr+'/'+node+'/'+var+'/'
+            post_str += '/'.join([str(arg) for arg in value])
+            try:
+                Thread(target=lambda : requests.post(post_str)).start()
+            except:
+                pass
 
     def send_event_name(self, event_name, event_args):
-        self.network.SendEventName(event_name, event_args, reply_handler=self.dbus_reply, error_handler=self.dbus_error)
+        if self.bridge == 'asebamedulla':
+            self.network.SendEventName(event_name, event_args, reply_handler=self.dbus_reply, error_handler=self.dbus_error)
+        else:
+            post_str = self.httpaddr+'/'+self.device+'/'+event_name+'/'
+            post_str += '/'.join([str(arg) for arg in event_args])
+            try:
+                r = requests.post(post_str)
+            except:
+                pass
 
     def leds_top(self,r=0,g=0,b=0):
         self.send_event_name('SetLEDsTop', [r,g,b])
@@ -585,7 +628,8 @@ class ThymioReal(Thymio):
         self.set(self.device, "motor.right.target", [0])
 
     def quit_loop(self):
-        self.loop.quit()
+        if self.bridge == 'asebamedulla':
+            self.loop.quit()
 
 class ThymioSim(Thymio):
     def __init__(self,world=None):

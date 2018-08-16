@@ -9,6 +9,7 @@ while(1):
     print(data)
     front=data[2]
     print(front)
+    m.sleep(1)
     if front>2000:
         m.quit()
    
