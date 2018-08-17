@@ -1,6 +1,7 @@
 import Pyro4
 from pythymiodw import ThymioSim3D
 
+
 def run_pyro_daemon():
     try:
         with Pyro4.Daemon() as daemon:
@@ -10,5 +11,6 @@ def run_pyro_daemon():
             daemon.requestLoop()
     except Exception as e:
         print(e)
+
 
 run_pyro_daemon()

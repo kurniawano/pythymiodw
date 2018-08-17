@@ -895,11 +895,12 @@ class ThymioSim(Thymio):
 @Pyro4.behavior(instance_mode="single")
 class ThymioSim3D(Thymio):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, init_pos=(100, 100), heading=0):
+        super().__init__()
         self.leftv = 0
         self.rightv = 0
-        self.heading = 0.0
+        self.heading = heading
+        self.init_pos = init_pos
 
     def open(self):
         self.device = "thymio-II"
@@ -912,6 +913,33 @@ class ThymioSim3D(Thymio):
         self.get_prox_ground()
         self.get_temperature()
         self._wheels(self.leftv, self.rightv)
+
+    @property
+    def heading(self):
+        return self._heading
+
+    @heading.setter
+    def heading(self, val):
+        val = val % 360
+        self._heading = val
+
+    @property
+    def init_pos(self):
+        return self._init_pos
+
+    @init_pos.setter
+    def init_pos(self, val):
+        if len(val) < 2:
+            self._init_pos = (100, 100)
+        if val[0] < 0:
+            x = 100
+        else:
+            x = val[0]
+        if val[1] < 0:
+            y = 100
+        else:
+            y = val[1]
+        self._init_pos = (x, y)
 
     @property
     def leftv(self):
@@ -930,8 +958,8 @@ class ThymioSim3D(Thymio):
         self._rightv = val
 
     def wheels(self, l, r):
-        self._leftv = l
-        self._rightv = r
+        self._leftv = int(l)
+        self._rightv = int(r)
 
     @property
     def prox_horizontal(self):
