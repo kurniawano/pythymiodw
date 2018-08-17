@@ -6,8 +6,11 @@ import sys
 
 class ThymioSMSim():
 
-    def __init__(self, MySM, world=None):
-        self.thymio = ThymioSM2(MySM, world)
+    def __init__(self, MySM, world=None, graphic='pygame', scale=1):
+        if graphic == 'pygame':
+            self.thymio = ThymioSMPG(MySM, world, scale)
+        else:
+            self.thymio = ThymioSMTurtle(MySM, world, scale)
 
     def start(self):
         try:
@@ -78,10 +81,10 @@ class ThymioSM1(ThymioReal):
         self.wheels(output.leftv, output.rightv)
 
 
-class ThymioSM2(ThymioSim):
+class ThymioSMSimBase:
 
-    def __init__(self, MySM, world):
-        super().__init__(world)
+    def __init__(self, MySM, world, scale):
+        super().__init__(world, scale)
         self.behaviour = MySM
         self.input = Input()
         self.behaviour.start()
@@ -101,3 +104,13 @@ class ThymioSM2(ThymioSim):
 
     def move(self, output):
         self.wheels(output.leftv, output.rightv)
+
+
+class ThymioSMTurtle(ThymioSMSimBase, ThymioSim):
+
+    pass
+
+
+class ThymioSMPG(ThymioSMSimBase, ThymioSimPG):
+
+    pass
