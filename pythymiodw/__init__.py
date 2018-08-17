@@ -6,6 +6,7 @@ import os
 import sys
 import signal
 import turtle
+import pygame
 
 if sys.platform =='linux' or sys.platform=='linux2':
     import dbus
@@ -17,10 +18,11 @@ else:
 
 from threading import Thread, Timer
 from . import io 
-from .world import Point
+from .world import Point, Line, Floor, Wall
+from .pg import PGWindow, PGRobot
 import math
 
-#time step, 0.1 second
+#time step, 0.2 second
 dt = 200
 
 class Thymio:
@@ -686,7 +688,7 @@ class ThymioReal(Thymio):
     button_right=property(get_button_right)
 
 class ThymioSim(Thymio):
-    def __init__(self,world=None):
+    def __init__(self,world=None, scale = 1):
         super().__init__()
         self.forward_velocity=0.0
         self.rotational_velocity=0.0
@@ -694,11 +696,13 @@ class ThymioSim(Thymio):
         self.rightv=0
         self.heading=0.0
         self.world=world
+        self.scale = scale
         if self.world!=None:
             ll,ur=self.world.get_world_boundaries()
             self.window.setworldcoordinates(ll.x,ll.y,ur.x,ur.y)
-            self.world.draw_world(self.robot)
-            self.init_pos=self.world.get_init_pos()
+            self.world.draw_world(self.robot, self.scale)
+            init_pos=self.world.get_init_pos()
+            self.init_pos=Point(init_pos.x*self.scale, init_pos.y*self.scale)
             self.heading=self.world.get_init_heading()
         else:
             pos=self.robot.position()
@@ -733,6 +737,7 @@ class ThymioSim(Thymio):
             self.run()
             t+=dt/1000
             time.sleep(dt/1000)
+
     def rad_to_deg(self,omega):
         return omega/math.pi*180
     
@@ -751,12 +756,12 @@ class ThymioSim(Thymio):
     def check_world(self, fv):
         if self.world==None:
             return True
-        rad=fv*dt/1000.0
+        rad=fv*dt/1000.0*self.scale
         new_x, new_y = self.get_new_point(rad)
-        if self.world.is_overlap(Point(new_x,new_y)):
+        if self.world.is_overlap(Point(new_x,new_y), self.scale):
             return False
         ll,ur=self.world.get_world_boundaries()
-        if new_x<ll.x or new_x > ur.x or new_y<ll.y or new_y>ur.y:
+        if new_x<ll.x*self.scale or new_x > ur.x*self.scale or new_y<ll.y*self.scale or new_y>ur.y*self.scale:
             return False
         return True
         
@@ -764,8 +769,8 @@ class ThymioSim(Thymio):
         angle=self.robot.heading()
         angle_rad=angle/180.0*math.pi  
         x,y=self.robot.position()
-        dx=rad*math.cos(angle_rad)
-        dy=rad*math.sin(angle_rad)
+        dx=rad*math.cos(angle_rad)*self.scale
+        dy=rad*math.sin(angle_rad)*self.scale
         new_x,new_y=x+dx,y+dy
         return new_x, new_y
       
@@ -801,3 +806,105 @@ class ThymioSim(Thymio):
         self._prox_ground_delta[0]=self._prox_ground_ambiant[0]-self._prox_ground_reflected[0] 
         self._prox_ground_delta[1]=self._prox_ground_ambiant[1]-self._prox_ground_reflected[1] 
         return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
+
+class ThymioSimPG(ThymioSim):
+    def __init__(self, world = None, scale = 1):
+        pygame.init()
+        self.scale = scale
+        super().__init__(world, scale)
+
+    def open(self):
+        self.window = PGWindow(scale = self.scale)
+        self.robot = PGRobot(self.window, scale = self.scale)
+
+    def run(self):
+        super().run()
+        self.window.screen.fill(self.window.color)
+        if self.world != None:
+            self.world.draw_world(self.robot, self.scale)
+
+    def sleep(self,n):
+        t=0
+        while t<n:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.display.quit()
+                    pygame.quit()
+                    sys.exit()
+            self.run()
+            t+=dt/1000
+            time.sleep(dt/1000)   
+                 
+    def get_new_point(self, rad):
+        angle=self.robot.heading()
+        angle_rad=angle/180.0*math.pi  
+        x,y=self.robot.position()
+        rect = self.robot._image.get_rect()
+        x  = x+rect.center[0]*math.cos(angle_rad)
+        y = y+rect.center[1]*math.sin(angle_rad)
+        dx=rad*math.cos(angle_rad)*self.scale
+        dy=rad*math.sin(angle_rad)*self.scale
+        new_x,new_y=x+dx,y-dy
+        return new_x, new_y
+
+    def get_prox_horizontal(self):
+        self._prox_horizontal = [0 for i in range(7)]
+        if self.world is not None:
+            prox_horizontal = self.robot.get_horizontal_sensor_position()
+            range_horizontal = self.robot.get_range_points_of_sensor()
+            dic = {}
+            for i in range(7):
+                dic[i] = Line(Point(prox_horizontal[i][0]/self.scale,
+                                    prox_horizontal[i][1]/self.scale),
+                                    Point(range_horizontal[i][0]/self.scale,
+                                          range_horizontal[i][1]/self.scale))
+            distances = [-1 for i in range(7)]
+            for block in self.world.blocks:
+                if isinstance(block, Floor):
+                    continue
+                for i in range(7):
+                    intersect_point = block.is_line_intersect(dic[i], self.scale)
+                    if intersect_point is not False:
+                        point_xy, dist_min = intersect_point
+                        distances[i] = dist_min / self.scale
+            for i in range(7):
+                if distances[i] == -1:
+                    self._prox_horizontal[i] = 0
+                else:
+                    A = 4.76569216e5
+                    B = 4.14625464
+                    C = 9.6766127e1
+                    reading = A / (distances[i] * distances[i] +
+                                   B * distances[i] + C)
+                    self._prox_horizontal[i] = reading
+
+        return self._prox_horizontal
+
+    def check_floor(self):
+        left = None
+        right = None
+        left_pos, right_pos = self.robot.get_ground_sensor_position()
+        for block in self.world.blocks:
+            if block.is_overlap(Point(left_pos[0], left_pos[1]), self.scale):
+                left = block
+            if block.is_overlap(Point(right_pos[0], right_pos[1]), self.scale):
+                right = block
+        return left, right
+
+    def get_prox_ground(self):
+        left, right =  self.check_floor()
+        delta = [1023,1023]
+        ambiant = [0,0]
+        if isinstance(left, Floor):
+            color = left.color
+            color_average = (color[0]+color[1]+color[2])/3
+            delta[0] = (int(1023*color_average/255))
+        if isinstance(right, Floor):
+            color = right.color
+            color_average = (color[0]+color[1]+color[2])/3
+            delta[1] = (int(1023*color_average/255))
+        self._prox_ground_delta = delta
+        self._prox_ground_reflected = delta
+        self._prox_ground_ambiant = ambiant
+        return io.ProxGround(delta = self._prox_ground_delta, reflected = self._prox_ground_reflected, ambiant = self._prox_ground_ambiant)
+        
