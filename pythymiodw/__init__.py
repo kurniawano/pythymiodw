@@ -422,8 +422,8 @@ class ThymioReal(Thymio):
                 return data[0]
             else:
                 return data
-        except:
-            error_handler()
+        except Exception as e:
+            error_handler(e)
 
     def set(self, node, var, value):
         if self.bridge == 'asebamedulla':
@@ -566,7 +566,7 @@ class ThymioReal(Thymio):
         self._button_backward=press[0]
 
     def get_variables_error(self, e):
-        Thymio.get_variables_error(self,e)
+        super().get_variables_error(e)
         self.quit()
 
     def get_prox_horizontal(self):
