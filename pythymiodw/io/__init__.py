@@ -17,6 +17,7 @@ class Action(object):
         self.rightv=self.fv+0.5*self.W*self.rv
         self.rightv=(500/0.2)*self.rightv
 
+
 class Input(object):
     def __init__(self):
         self.prox_horizontal=[0.0 for i in range(7)]

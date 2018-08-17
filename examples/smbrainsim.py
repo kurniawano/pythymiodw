@@ -21,7 +21,7 @@ MySM=MySMClass()
 
 ############################
 
-m=ThymioSMSim(MySM,thymio_world)
+m=ThymioSMSim(MySM, thymio_world, graphic='turtle')
 try:
     m.start()
 except KeyboardInterrupt:

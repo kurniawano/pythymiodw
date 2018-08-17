@@ -16,6 +16,6 @@ while not finish:
         if count>=4:
             finish=True
         robot.wheels(0,100)
-        robot.sleep(1.9)
+        robot.sleep(3.7)
 robot.quit()
 
