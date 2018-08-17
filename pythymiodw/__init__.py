@@ -12,8 +12,11 @@ if sys.platform =='linux' or sys.platform=='linux2':
     import dbus
     import dbus.mainloop.glib
     from gi.repository import GObject as gobject
+else:
+    import requests
+    import json
 
-from threading import Thread
+from threading import Thread, Timer
 from . import io 
 from .world import Point, Line, Floor, Wall
 from .pg import PGWindow, PGRobot
@@ -326,8 +329,14 @@ class Thymio:
     button_left=property(read_button_left)
     button_right=property(read_button_right)
 
+
 class ThymioReal(Thymio):
     def __init__(self,world=None):
+        if sys.platform =='linux' or sys.platform=='linux2':
+            self.bridge = 'asebamedulla'
+        else:
+            self.bridge = 'http'
+
         super().__init__()
         self.init_read()
 
@@ -345,11 +354,6 @@ class ThymioReal(Thymio):
             print(inst)
             self.quit()
 
-    def _run(self):
-        """Internal method to run the robot. This is called by run() and implemented by ThymioReal and ThymioSim.
-        """
-        pass
-
     def init_read(self):
         """Method to start running the robot in a thread. It calls run().
         """
@@ -358,49 +362,92 @@ class ThymioReal(Thymio):
 
     def open(self):
         self.device="thymio-II"
-        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        self.bus=dbus.SessionBus()
-        self.aseba_proc=subprocess.Popen(['asebamedulla "ser:name=Thymio-II"'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)    
-        time.sleep(2)
-        self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
-        node=self.network.GetNodesList()
-        progress=0
-        print('connecting: {:d}. \r'.format(progress),end='')
-        while node==[]:
+        if self.bridge == 'asebamedulla':
+
+            dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+            self.bus=dbus.SessionBus()
+            self.aseba_proc=subprocess.Popen(['asebamedulla "ser:name=Thymio-II"'], stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)    
+            time.sleep(2)
             self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
             node=self.network.GetNodesList()
-            sys.stdout.write('connecting: %d. \r'% progress)
-            sys.stdout.flush()
-            progress+=1
-        print()
-        print('connected to {!s:s}.'.format(node))
-        self.network.LoadScripts(os.path.dirname(os.path.realpath(__file__))+'/thymiohandlers.aesl')
-        self.loop=gobject.MainLoop()
-        self.handle=gobject.timeout_add(dt, self.main_loop)
+            progress=0
+            print('connecting: {:d}. \r'.format(progress),end='')
+            while node==[]:
+                self.network=dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'), dbus_interface='ch.epfl.mobots.AsebaNetwork')
+                node=self.network.GetNodesList()
+                sys.stdout.write('connecting: %d. \r'% progress)
+                sys.stdout.flush()
+                progress+=1
+            print()
+            print('connected to {!s:s}.'.format(node))
+            self.network.LoadScripts(os.path.dirname(os.path.realpath(__file__))+'/thymiohandlers.aesl')
+            self.loop=gobject.MainLoop()
+            self.handle=gobject.timeout_add(dt, self.main_loop)
+        else:
+            #self.aseba_proc=subprocess.Popen(["asebahttp --autorestart -s 33333 --aesl thymiohandlers.aesl ser:name=Thymio"], stdout=subprocess.PIPE, shell=True)    
+            time.sleep(2)
+            self.httpaddr = 'http://localhost:3000/nodes/'
+            r = requests.get(self.httpaddr+self.device)
+            json_data = json.loads(r.text)
+            node = json_data['name']
+            progress = 0
+            print('connecting: {:d}. \r'.format(progress),end='')
+            while node==[]:
+                r=requests.get(self.httpaddr+self.device)
+                json_data = json.loads(r.text)
+                node = json_data['name']
+                sys.stdout.write('connecting: %d. \r'% progress)
+                sys.stdout.flush()
+                progress+=1
+            print()
+            print('connected to {!s:s}.'.format(node))
 
     def close(self):
-        Thymio.close(self)
-        os.killpg(os.getpgid(self.aseba_proc.pid), signal.SIGTERM)
+        super().close()
+        if self.bridge == 'asebamedulla':
+            os.killpg(os.getpgid(self.aseba_proc.pid), signal.SIGTERM)
+        #elif sys.platform=='win32':
+            #subprocess.call(['taskill','/F','/T','/PID', str(self.aseba_proc.pid)])
 
     def _run(self):
         try:
-            self.loop.run()
+            if self.bridge == 'asebamedulla':
+                self.loop.run()
         except:
             self.quit()
 
-    def get(self, node, var):
-        dbus_array = self.network.GetVariable(node, var)
-        size = len(dbus_array)
-        if (size==1):
-            return int(dbus_array[0])
-        else:
-            return [int(dbus_array[x]) for x in range(0,size)]
+    def get(self, node, var, error_handler):
+        try:
+            r = requests.get(self.httpaddr+'/'+node+'/'+var)
+            data = json.loads(r.text)
+            if len(data) == 1:
+                return data[0]
+            else:
+                return data
+        except Exception as e:
+            error_handler(e)
 
     def set(self, node, var, value):
-        self.network.SetVariable(node,var,value)
+        if self.bridge == 'asebamedulla':
+            self.network.SetVariable(node,var,value)
+        else:
+            post_str = self.httpaddr+'/'+node+'/'+var+'/'
+            post_str += '/'.join([str(arg) for arg in value])
+            try:
+                Thread(target=lambda : requests.post(post_str)).start()
+            except:
+                pass
 
     def send_event_name(self, event_name, event_args):
-        self.network.SendEventName(event_name, event_args, reply_handler=self.dbus_reply, error_handler=self.dbus_error)
+        if self.bridge == 'asebamedulla':
+            self.network.SendEventName(event_name, event_args, reply_handler=self.dbus_reply, error_handler=self.dbus_error)
+        else:
+            post_str = self.httpaddr+'/'+self.device+'/'+event_name+'/'
+            post_str += '/'.join([str(arg) for arg in event_args])
+            try:
+                r = requests.post(post_str)
+            except:
+                pass
 
     def leds_top(self,r=0,g=0,b=0):
         self.send_event_name('SetLEDsTop', [r,g,b])
@@ -521,62 +568,95 @@ class ThymioReal(Thymio):
         self._button_backward=press[0]
 
     def get_variables_error(self, e):
-        Thymio.get_variables_error(self,e)
+        super().get_variables_error(e)
         self.quit()
 
     def get_prox_horizontal(self):
-        self.network.GetVariable(self.device,"prox.horizontal", reply_handler=self.prox_horizontal_handler, error_handler=self.get_variables_error)
+        if self.bridge == 'asebamedulla':
+            self.network.GetVariable(self.device,"prox.horizontal", reply_handler=self.prox_horizontal_handler, error_handler=self.get_variables_error)
+        else:
+            self._prox_horizontal=self.get(self.device, "prox.horizontal", error_handler=self.get_variables_error)
         return self._prox_horizontal
 
     def get_prox_ground_delta(self):
-        self.network.GetVariable(self.device,"prox.ground.delta", reply_handler=self.prox_ground_delta_handler, error_handler=self.get_variables_error)
+        if self.bridge == 'asebamedulla':
+            self.network.GetVariable(self.device,"prox.ground.delta", reply_handler=self.prox_ground_delta_handler, error_handler=self.get_variables_error)
+        else:
+            self._prox_ground_delta = self.get(self.device, "prox.ground.delta", error_handler=self.get_variables_error)
         return self._prox_ground_delta
 
     def get_prox_ground_reflected(self):
-        self.network.GetVariable(self.device,"prox.ground.reflected", reply_handler=self.prox_ground_reflected_handler, error_handler=self.get_variables_error)
+        if self.bridge == 'asebamedulla':
+            self.network.GetVariable(self.device,"prox.ground.reflected", reply_handler=self.prox_ground_reflected_handler, error_handler=self.get_variables_error)
+        else:
+            self._prox_ground_reflected = self.get(self.device, "prox.ground.reflected", error_handler=self.get_variables_error)
         return self._prox_ground_reflected
 
     def get_prox_ground_ambiant(self):
-        self.network.GetVariable(self.device,"prox.ground.ambiant", reply_handler=self.prox_ground_ambiant_handler, error_handler=self.get_variables_error)
+        if self.bridge == 'asebamedulla':
+            self.network.GetVariable(self.device,"prox.ground.ambiant", reply_handler=self.prox_ground_ambiant_handler, error_handler=self.get_variables_error)
+        else:
+            self._prox_ground_ambiant = self.get(self.device, "prox.ground.ambiant" , error_handler=self.get_variables_error)
         return self._prox_ground_ambiant
 
     def get_temperature(self):
-        self.network.GetVariable(self.device,"temperature", reply_handler=self.temperature_handler, error_handler=self.get_variables_error)
+        if self.bridge == 'asebamedulla':
+            self.network.GetVariable(self.device,"temperature", reply_handler=self.temperature_handler, error_handler=self.get_variables_error)
+        else:
+            self._temperature = self.get(self.device, "temperature", error_handler=self.get_variables_error)
         return self._temperature
 
     def get_accelerometer(self):
-        self.network.GetVariable(self.device,"acc", reply_handler=self.acc_handler, error_handler=self.get_variables_error)
+        if self.bridge == 'asebamedulla':
+            self.network.GetVariable(self.device,"acc", reply_handler=self.acc_handler, error_handler=self.get_variables_error)
+        else:
+            self._accelerometer = self.get(self.device, "acc", error_handler=self.get_variables_error)
         return self._accelerometer
 
     def get_button_center(self):
         """Method to get center button. 
         """
-        self.network.GetVariable(self.device,"button.center", reply_handler=self.button_center_handler, error_handler=self.get_variables_error)
+        if self.bridge == 'asebamedulla':
+            self.network.GetVariable(self.device,"button.center", reply_handler=self.button_center_handler, error_handler=self.get_variables_error)
+        else:
+            self._button_center=self.get(self.device, "button.center", error_handler=self.get_variables_error)
         return self._button_center
 
     def get_button_left(self):
         """Method to get left button. 
         """
-        self.network.GetVariable(self.device,"button.left", reply_handler=self.button_left_handler, error_handler=self.get_variables_error)
+        if self.bridge == 'asebamedulla':
+            self.network.GetVariable(self.device,"button.left", reply_handler=self.button_left_handler, error_handler=self.get_variables_error)
+        else:
+            self._button_left = self.get(self.device, "button.left", error_handler=self.get_variables_error)
         return self._button_left
 
     def get_button_right(self):
         """Method to get right button. 
         """
-        self.network.GetVariable(self.device,"button.right", reply_handler=self.button_right_handler, error_handler=self.get_variables_error)
+        if self.bridge == 'asebamedulla':
+            self.network.GetVariable(self.device,"button.right", reply_handler=self.button_right_handler, error_handler=self.get_variables_error)
+        else:
+            self._button_right=self.get(self.device, "button.right", error_handler=self.get_variables_error)
         return self._button_right
 
     def get_button_forward(self):
         """Method to get forward button. 
         """
-        self.network.GetVariable(self.device,"button.forward", reply_handler=self.button_forward_handler, error_handler=self.get_variables_error)
+        if self.bridge == 'asebamedulla':
+            self.network.GetVariable(self.device,"button.forward", reply_handler=self.button_forward_handler, error_handler=self.get_variables_error)
+        else:
+            self._button_forward = self.get(self.device, "button.forward", error_handler=self.get_variables_error)
         return self._button_forward
 
     def get_button_backward(self):
         """Method to get backward button. 
         """
-        self.network.GetVariable(self.device,"button.backward", reply_handler=self.button_backward_handler, error_handler=self.get_variables_error)
-        return self._button_forward
+        if self.bridge == 'asebamedulla':
+            self.network.GetVariable(self.device,"button.backward", reply_handler=self.button_backward_handler, error_handler=self.get_variables_error)
+        else:
+            self._button_backward = self.get(self.device, "button.backward", error_handler=self.get_variables_error)
+        return self._button_backward
 
     def _wheels(self,l,r):
         self.set(self.device, "motor.left.target",[l])
@@ -587,7 +667,25 @@ class ThymioReal(Thymio):
         self.set(self.device, "motor.right.target", [0])
 
     def quit_loop(self):
-        self.loop.quit()
+        if self.bridge == 'asebamedulla':
+            self.loop.quit()
+
+    def read_prox_ground(self):
+        self.get_prox_ground_delta()
+        self.get_prox_ground_reflected()
+        self.get_prox_ground_ambiant()
+        return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
+
+
+    prox_horizontal=property(get_prox_horizontal)
+    prox_ground = property(read_prox_ground)
+    temperature=property(get_temperature)
+    accelerometer=property(get_accelerometer)
+    button_center=property(get_button_center)
+    button_forward=property(get_button_forward)
+    button_backward=property(get_button_backward)
+    button_left=property(get_button_left)
+    button_right=property(get_button_right)
 
 class ThymioSim(Thymio):
     def __init__(self,world=None, scale = 1):
