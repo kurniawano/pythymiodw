@@ -749,10 +749,6 @@ class ThymioSimPG(ThymioSim):
         new_x,new_y=x+dx,y-dy
         return new_x, new_y
 
-    def check_floor(self):
-        left = None
-        right = None
-
     def get_prox_horizontal(self):
         self._prox_horizontal = [0 for i in range(7)]
         if self.world is not None:
@@ -785,4 +781,32 @@ class ThymioSimPG(ThymioSim):
                     self._prox_horizontal[i] = reading
 
         return self._prox_horizontal
+
+    def check_floor(self):
+        left = None
+        right = None
+        left_pos, right_pos = self.robot.get_ground_sensor_position()
+        for block in self.world.blocks:
+            if block.is_overlap(Point(left_pos[0], left_pos[1]), self.scale):
+                left = block
+            if block.is_overlap(Point(right_pos[0], right_pos[1]), self.scale):
+                right = block
+        return left, right
+
+    def get_prox_ground(self):
+        left, right =  self.check_floor()
+        delta = [1023,1023]
+        ambiant = [0,0]
+        if isinstance(left, Floor):
+            color = left.color
+            color_average = (color[0]+color[1]+color[2])/3
+            delta[0] = (int(1023*color_average/255))
+        if isinstance(right, Floor):
+            color = right.color
+            color_average = (color[0]+color[1]+color[2])/3
+            delta[1] = (int(1023*color_average/255))
+        self._prox_ground_delta = delta
+        self._prox_ground_reflected = delta
+        self._prox_ground_ambiant = ambiant
+        return io.ProxGround(delta = self._prox_ground_delta, reflected = self._prox_ground_reflected, ambiant = self._prox_ground_ambiant)
         

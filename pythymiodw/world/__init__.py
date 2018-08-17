@@ -91,7 +91,7 @@ class World:
 
     def is_overlap(self, p, scale=1):
         for b in self.blocks:
-            if b.is_overlap(p, scale):
+            if b.is_overlap(p, scale) and isinstance(b, Wall):
                 return True
         return False
 
