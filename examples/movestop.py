@@ -4,7 +4,7 @@ from pythymiodw import ThymioReal
 
 m=ThymioReal()
 while(1):
-    m.wheels(0,0)
+    m.wheels(100,100)
     data=m.prox_horizontal
     #print(data)
     front=data[2]

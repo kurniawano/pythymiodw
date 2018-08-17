@@ -668,7 +668,15 @@ class ThymioReal(Thymio):
         if self.bridge == 'asebamedulla':
             self.loop.quit()
 
+    def read_prox_ground(self):
+        self.get_prox_ground_delta()
+        self.get_prox_ground_reflected()
+        self.get_prox_ground_ambiant()
+        return io.ProxGround(delta=self._prox_ground_delta, reflected=self._prox_ground_reflected, ambiant=self._prox_ground_ambiant)
+
+
     prox_horizontal=property(get_prox_horizontal)
+    prox_ground = property(read_prox_ground)
     temperature=property(get_temperature)
     accelerometer=property(get_accelerometer)
     button_center=property(get_button_center)

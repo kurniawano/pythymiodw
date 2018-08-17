@@ -8,4 +8,5 @@ while True:
     if 0<ground.delta[0]<500 or 0<ground.delta[1]<500:
         break
     robot.wheels(100,100)
+    robot.sleep(1)
 robot.quit()
