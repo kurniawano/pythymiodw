@@ -14,6 +14,6 @@ while True:
     if b:
         break
     if f:
-        print('forwad')
+        print('forward')
 m.quit()
 

@@ -653,7 +653,7 @@ class ThymioReal(Thymio):
         if self.bridge == 'asebamedulla':
             self.network.GetVariable(self.device,"button.backward", reply_handler=self.button_backward_handler, error_handler=self.get_variables_error)
         else:
-            self.button_backward = self.get(self.device, "button.backward", error_handler=self.get_variables_error)
+            self._button_backward = self.get(self.device, "button.backward", error_handler=self.get_variables_error)
         return self._button_backward
 
     def _wheels(self,l,r):
