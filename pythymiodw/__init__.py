@@ -7,6 +7,7 @@ import sys
 import signal
 import turtle
 import pygame
+import queue
 import Pyro4
 from threading import Thread, Timer
 from . import io
@@ -355,6 +356,17 @@ class ThymioReal(Thymio):
             self.bridge = 'http'
 
         super().__init__()
+        self._prox_horizontal = [0, 0, 0, 0, 0, 0, 0]
+        self._prox_ground_delta = queue.Queue(maxsize = 10)
+        self._prox_ground_reflected = queue.Queue(maxsize = 10)
+        self._prox_ground_ambiant = queue.Queue(maxsize = 10)
+        self._accelerometer = [0, 0, 0]
+        self._temperature = 0.0
+        self._button_center = 0
+        self._button_left = 0
+        self._button_right = 0
+        self._button_forward = 0
+        self._button_backward = 0
         self.init_read()
 
     def run(self):
@@ -410,7 +422,10 @@ class ThymioReal(Thymio):
             self.loop = gobject.MainLoop()
             self.handle = gobject.timeout_add(dt, self.main_loop)
         else:
-            # self.aseba_proc=subprocess.Popen(["asebahttp --autorestart -s 33333 --aesl thymiohandlers.aesl ser:name=Thymio"], stdout=subprocess.PIPE, shell=True)    
+            #path_to_lib = os.path.dirname(pythymiodw.__file__) + '/' + 'thymiohandlers.aesl'
+            #command = ["asebahttp", "--autorestart", "--aesl", path_to_lib, 
+            #           "ser:name=Thymio"]
+            #self.aseba_proc=subprocess.Popen([command], stdout=subprocess.PIPE, shell=True)    
             time.sleep(2)
             self.httpaddr = 'http://localhost:3000/nodes/'
             r = requests.get(self.httpaddr + self.device)
@@ -453,6 +468,39 @@ class ThymioReal(Thymio):
                 return data
         except Exception as e:
             error_handler(e)
+
+    def get_ground(self, node, var, reply_handler=None, error_handler=None):
+        def get_foo(node, var):
+            r = requests.get(self.httpaddr + '/' + node + '/' + var)
+            data = json.loads(r.text)
+            if len(data) == 1:
+                return data[0]
+            else:
+                return data
+        try:
+            Thread(target = lambda: reply_handler(get_foo(node, var)) ).start()
+        except Exception as e:
+            error_handler(e)
+
+    def prox_ground_delta_handler(self, r):
+        """Callback for robot to send delta ground proximity sensor data.
+        """
+        t = [int(x) for x in r]
+        self._prox_ground_delta.put(t)
+        
+    def prox_ground_ambiant_handler(self, r):
+        """Callback for robot to send delta ground proximity sensor data.
+        """
+        t = [int(x) for x in r]
+        self._prox_ambiant_delta.put(t)
+        
+    def prox_ground_reflected_handler(self, r):
+        """Callback for robot to send delta ground proximity sensor data.
+        """
+        t = [int(x) for x in r]
+        self._prox_reflected_delta.put(t)
+        
+
 
     def set(self, node, var, value):
         if self.bridge == 'asebamedulla':
@@ -628,10 +676,10 @@ class ThymioReal(Thymio):
                                      reply_handler=self.prox_ground_delta_handler,
                                      error_handler=self.get_variables_error)
         else:
-            self._prox_ground_delta = self.get(self.device,
-                                               "prox.ground.delta",
-                                               error_handler=self.get_variables_error)
-        return self._prox_ground_delta
+            self.get_ground(self.device, "prox.ground.delta",
+                            reply_handler=self.prox_ground_delta_handler,
+                            error_handler=self.get_variables_error)
+        return self._prox_ground_delta.get()
 
     def get_prox_ground_reflected(self):
         if self.bridge == 'asebamedulla':
@@ -639,10 +687,10 @@ class ThymioReal(Thymio):
                                      reply_handler=self.prox_ground_reflected_handler,
                                      error_handler=self.get_variables_error)
         else:
-            self._prox_ground_reflected = self.get(self.device,
-                                                   "prox.ground.reflected",
-                                                   error_handler=self.get_variables_error)
-        return self._prox_ground_reflected
+            self.get_ground(self.device, "prox.ground.reflected",
+                            reply_handler=self.prox_ground_reflected_handler,
+                            error_handler=self.get_variables_error)
+        return self._prox_ground_reflected.get()
 
     def get_prox_ground_ambiant(self):
         if self.bridge == 'asebamedulla':
@@ -650,10 +698,10 @@ class ThymioReal(Thymio):
                                      reply_handler=self.prox_ground_ambiant_handler,
                                      error_handler=self.get_variables_error)
         else:
-            self._prox_ground_ambiant = self.get(self.device,
-                                                 "prox.ground.ambiant",
-                                                 error_handler=self.get_variables_error)
-        return self._prox_ground_ambiant
+            self.get_ground(self.device, "prox.ground.ambiant",
+                            reply_handler=self.prox_ground_ambiant_handler,
+                            error_handler=self.get_variables_error)
+        return self._prox_ground_ambiant.get()
 
     def get_temperature(self):
         if self.bridge == 'asebamedulla':
@@ -1067,11 +1115,12 @@ class ThymioSimPG(ThymioSim):
         left = None
         right = None
         left_pos, right_pos = self.robot.get_ground_sensor_position()
-        for block in self.world.blocks:
-            if block.is_overlap(Point(left_pos[0], left_pos[1]), self.scale):
-                left = block
-            if block.is_overlap(Point(right_pos[0], right_pos[1]), self.scale):
-                right = block
+        if self.world is not None:
+            for block in self.world.blocks:
+                if block.is_overlap(Point(left_pos[0], left_pos[1]), self.scale):
+                    left = block
+                if block.is_overlap(Point(right_pos[0], right_pos[1]), self.scale):
+                    right = block
         return left, right
 
     def get_prox_ground(self):
