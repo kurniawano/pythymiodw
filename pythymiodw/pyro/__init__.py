@@ -53,7 +53,10 @@ class Thymio3D():
         return self.robot.leftv, self.robot.rightv
 
     def sleep(self, sec):
-        time.sleep(sec)
+        try:
+          time.sleep(sec)
+        except KeyboardInterrupt:
+          self.quit()
 
     @property
     def prox_horizontal(self):
