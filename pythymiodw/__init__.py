@@ -14,7 +14,8 @@ from . import io
 from .world import Point, Line, Floor, Wall
 from .pg import PGWindow, PGRobot
 import math
-
+import tkinter as tk 
+from PIL import ImageTk, Image
 if sys.platform == 'linux' or sys.platform == 'linux2':
     import dbus
     import dbus.mainloop.glib
@@ -817,6 +818,7 @@ class ThymioReal(Thymio):
 class ThymioSim(Thymio):
 
     def __init__(self, world=None, scale=1):
+        Thread(target=self.run_iowindow, name='IO Window').start()
         super().__init__()
         self.forward_velocity = 0.0
         self.rotational_velocity = 0.0
@@ -849,6 +851,41 @@ class ThymioSim(Thymio):
         self.get_prox_ground()
         self.get_temperature()
         self._wheels(self.leftv, self.rightv)
+
+    def quit(self):
+        self.tk.quit()
+        super().quit()
+
+    def run_iowindow(self):
+        self.tk = tk.Tk()
+        self.canvas = tk.Canvas(self.tk, width=300, height=300)
+        self.canvas.pack(expand=tk.YES, fill=tk.BOTH)
+        tk_img = ImageTk.PhotoImage(file='images/iodisplay.png')
+        self.canvas.create_image(150, 150, image=tk_img)
+        self.led = self.canvas.create_rectangle(100, 175, 200, 250, fill='#000000')
+        self.tk.mainloop()
+
+    def leds_top(self, r=0, g=0, b=0):
+        self.canvas.itemconfig(self.led, fill=self.colorconvert(r, g, b))
+
+    def colorconvert(self, r, g, b):
+        # conversion to 255
+        r = int(r * 7.9687)
+        g = int(g * 7.9687)
+        b = int(b * 7.9687)
+        # conversion to hex
+        dectohex = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 
+                   6: 6, 7: 7, 8: 8, 9: 9, 10: 'A', 
+                   11: 'B', 12: 'C', 13: 'D', 14: 'E', 15: 'F'}
+        first = dectohex[r // 16]
+        second = dectohex[r % 16]
+        third = dectohex[g // 16]
+        fourth = dectohex[g % 16]
+        fifth = dectohex[b // 16]
+        sixth = dectohex[b % 16]
+        hexcode = '#{}{}{}{}{}{}'.format(first, second, third,
+                                         fourth, fifth, sixth)
+        return hexcode
 
     def wheels(self, l, r):
         self.leftv = l
