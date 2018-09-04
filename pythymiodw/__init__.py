@@ -841,6 +841,11 @@ class ThymioSim(Thymio):
             self.heading = 0
         self.robot.setposition(self.init_pos.x, self.init_pos.y)
         self.robot.setheading(self.heading)
+        self._button_center = 0
+        self._button_forward = 0
+        self._button_backward = 0
+        self._button_left = 0
+        self._button_right = 0
 
     def open(self):
         self.window = turtle.Screen()
@@ -856,6 +861,18 @@ class ThymioSim(Thymio):
         self.tk.quit()
         super().quit()
 
+    def button_pressed(self, val):
+        if val == 'forward':
+            self._button_forward = 1
+        elif val == 'left':
+            self._button_left = 1
+        elif val == 'right':
+            self._button_right = 1
+        elif val == 'backward':
+            self._button_backward = 1
+        elif val == 'center':
+            self._button_center = 1
+
     def run_iowindow(self):
         self.tk = tk.Tk()
         self.canvas = tk.Canvas(self.tk, width=300, height=300)
@@ -863,6 +880,27 @@ class ThymioSim(Thymio):
         tk_img = ImageTk.PhotoImage(file='images/iodisplay.png')
         self.canvas.create_image(150, 150, image=tk_img)
         self.led = self.canvas.create_rectangle(100, 175, 200, 250, fill='#000000')
+        button_forward = tk.Button(self.tk, text = 'forward',
+                                   command = lambda: self.button_pressed('forward'),
+                                   width=7)
+        button_left = tk.Button(self.tk, text = 'left',
+                                command = lambda: self.button_pressed('left'),
+                                width=7)
+        button_right = tk.Button(self.tk, text = 'right',
+                                 command = lambda: self.button_pressed('right'),
+                                 width=7)
+        button_backward = tk.Button(self.tk, text = 'backward',
+                                    command = lambda: self.button_pressed('backward'),
+                                    width=7)
+        button_center = tk.Button(self.tk, text = 'center',
+                                  command = lambda: self.button_pressed('center'),
+                                  width=7)
+
+        button_forward.place(x=120, y=30)
+        button_left.place(x=40,y=90)
+        button_right.place(x=200, y=90)
+        button_backward.place(x=120,y=150)
+        button_center.place(x=120, y=90)
         self.tk.mainloop()
 
     def leds_top(self, r=0, g=0, b=0):

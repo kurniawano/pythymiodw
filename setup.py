@@ -9,7 +9,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='pythymiodw',
-    version='2.2.0',
+    version='2.3.0',
     description='Python library for Thymio used in Digital World class',
     long_description=long_description,
     url='https://github.com/kurniawano/pythymiodw',
