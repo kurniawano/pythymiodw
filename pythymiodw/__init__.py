@@ -9,13 +9,13 @@ import turtle
 import pygame
 import queue
 import Pyro4
-from threading import Thread, Timer
+from threading import Thread
 from . import io
-from .world import Point, Line, Floor, Wall
+from .world import Point, Line, Floor
 from .pg import PGWindow, PGRobot
 import math
-import tkinter as tk 
-from PIL import ImageTk, Image
+import tkinter as tk
+from PIL import ImageTk
 if sys.platform == 'linux' or sys.platform == 'linux2':
     import dbus
     import dbus.mainloop.glib
@@ -358,9 +358,9 @@ class ThymioReal(Thymio):
 
         super().__init__()
         self._prox_horizontal = [0, 0, 0, 0, 0, 0, 0]
-        self._prox_ground_delta = queue.Queue(maxsize = 10)
-        self._prox_ground_reflected = queue.Queue(maxsize = 10)
-        self._prox_ground_ambiant = queue.Queue(maxsize = 10)
+        self._prox_ground_delta = queue.Queue(maxsize=10)
+        self._prox_ground_reflected = queue.Queue(maxsize=10)
+        self._prox_ground_ambiant = queue.Queue(maxsize=10)
         self._accelerometer = [0, 0, 0]
         self._temperature = 0.0
         self._button_center = 0
@@ -488,20 +488,18 @@ class ThymioReal(Thymio):
         """
         t = [int(x) for x in r]
         self._prox_ground_delta.put(t)
-        
+
     def prox_ground_ambiant_handler(self, r):
         """Callback for robot to send delta ground proximity sensor data.
         """
         t = [int(x) for x in r]
         self._prox_ambiant_delta.put(t)
-        
+
     def prox_ground_reflected_handler(self, r):
         """Callback for robot to send delta ground proximity sensor data.
         """
         t = [int(x) for x in r]
         self._prox_reflected_delta.put(t)
-        
-
 
     def set(self, node, var, value):
         if self.bridge == 'asebamedulla':
@@ -877,29 +875,33 @@ class ThymioSim(Thymio):
         self.tk = tk.Tk()
         self.canvas = tk.Canvas(self.tk, width=300, height=300)
         self.canvas.pack(expand=tk.YES, fill=tk.BOTH)
-        tk_img = ImageTk.PhotoImage(file='images/iodisplay.png')
+        script_dir = os.path.dirname(__file__)
+        rel_path = 'images/iodisplay.png'
+        abs_file_path = os.path.join(script_dir, rel_path)
+        tk_img = ImageTk.PhotoImage(file=abs_file_path)
         self.canvas.create_image(150, 150, image=tk_img)
-        self.led = self.canvas.create_rectangle(100, 175, 200, 250, fill='#000000')
-        button_forward = tk.Button(self.tk, text = 'forward',
-                                   command = lambda: self.button_pressed('forward'),
+        self.led = self.canvas.create_rectangle(100, 175, 200, 250,
+                                                fill='#000000')
+        button_forward = tk.Button(self.tk, text='forward',
+                                   command=lambda: self.button_pressed('forward'),
                                    width=7)
-        button_left = tk.Button(self.tk, text = 'left',
-                                command = lambda: self.button_pressed('left'),
+        button_left = tk.Button(self.tk, text='left',
+                                command=lambda: self.button_pressed('left'),
                                 width=7)
-        button_right = tk.Button(self.tk, text = 'right',
-                                 command = lambda: self.button_pressed('right'),
+        button_right = tk.Button(self.tk, text='right',
+                                 command=lambda: self.button_pressed('right'),
                                  width=7)
-        button_backward = tk.Button(self.tk, text = 'backward',
-                                    command = lambda: self.button_pressed('backward'),
+        button_backward = tk.Button(self.tk, text='backward',
+                                    command=lambda: self.button_pressed('backward'),
                                     width=7)
-        button_center = tk.Button(self.tk, text = 'center',
-                                  command = lambda: self.button_pressed('center'),
+        button_center = tk.Button(self.tk, text='center',
+                                  command=lambda: self.button_pressed('center'),
                                   width=7)
 
         button_forward.place(x=120, y=30)
-        button_left.place(x=40,y=90)
+        button_left.place(x=40, y=90)
         button_right.place(x=200, y=90)
-        button_backward.place(x=120,y=150)
+        button_backward.place(x=120, y=150)
         button_center.place(x=120, y=90)
         self.tk.mainloop()
 
@@ -912,9 +914,9 @@ class ThymioSim(Thymio):
         g = int(g * 7.9687)
         b = int(b * 7.9687)
         # conversion to hex
-        dectohex = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 
-                   6: 6, 7: 7, 8: 8, 9: 9, 10: 'A', 
-                   11: 'B', 12: 'C', 13: 'D', 14: 'E', 15: 'F'}
+        dectohex = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5,
+                    6: 6, 7: 7, 8: 8, 9: 9, 10: 'A',
+                    11: 'B', 12: 'C', 13: 'D', 14: 'E', 15: 'F'}
         first = dectohex[r // 16]
         second = dectohex[r % 16]
         third = dectohex[g // 16]
@@ -1192,9 +1194,11 @@ class ThymioSimPG(ThymioSim):
         left_pos, right_pos = self.robot.get_ground_sensor_position()
         if self.world is not None:
             for block in self.world.blocks:
-                if block.is_overlap(Point(left_pos[0], left_pos[1]), self.scale):
+                if block.is_overlap(Point(left_pos[0], left_pos[1]),
+                                    self.scale):
                     left = block
-                if block.is_overlap(Point(right_pos[0], right_pos[1]), self.scale):
+                if block.is_overlap(Point(right_pos[0], right_pos[1]),
+                                    self.scale):
                     right = block
         return left, right
 
