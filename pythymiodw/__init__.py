@@ -816,7 +816,8 @@ class ThymioReal(Thymio):
 class ThymioSim(Thymio):
 
     def __init__(self, world=None, scale=1):
-        Thread(target=self.run_iowindow, name='IO Window').start()
+        if sys.platform != 'darwin':
+            Thread(target=self.run_iowindow, name='IO Window').start()
         super().__init__()
         self.forward_velocity = 0.0
         self.rotational_velocity = 0.0
@@ -906,7 +907,8 @@ class ThymioSim(Thymio):
         self.tk.mainloop()
 
     def leds_top(self, r=0, g=0, b=0):
-        self.canvas.itemconfig(self.led, fill=self.colorconvert(r, g, b))
+        if sys.platform != 'darwin':
+            self.canvas.itemconfig(self.led, fill=self.colorconvert(r, g, b))
 
     def colorconvert(self, r, g, b):
         # conversion to 255
