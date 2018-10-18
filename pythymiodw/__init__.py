@@ -877,7 +877,7 @@ class ThymioSim(Thymio):
         self.canvas = tk.Canvas(self.tk, width=300, height=300)
         self.canvas.pack(expand=tk.YES, fill=tk.BOTH)
         script_dir = os.path.dirname(__file__)
-        rel_path = '../images/iodisplay.png'
+        rel_path = '/images/iodisplay.png'
         abs_file_path = os.path.join(script_dir, rel_path)
         tk_img = ImageTk.PhotoImage(file=abs_file_path)
         self.canvas.create_image(150, 150, image=tk_img)
