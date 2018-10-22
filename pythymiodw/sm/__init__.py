@@ -111,7 +111,7 @@ class ThymioSM1(ThymioReal):
 
 class ThymioSMSimBase:
 
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         MySM = args[0]
         if len(args) > 1:
             world = args[1]
