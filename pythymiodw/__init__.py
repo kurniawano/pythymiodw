@@ -412,9 +412,8 @@ class ThymioReal(Thymio):
                 self.network = dbus.Interface(self.bus.get_object('ch.epfl.mobots.Aseba','/'),
                                               dbus_interface='ch.epfl.mobots.AsebaNetwork')
                 node = self.network.GetNodesList()
-                sys.stdout.write('connecting: {:d}. \r'.format(progress),
-                                 end='')
-                sys.stdout.flush()
+                print('connecting: {:d}. \r'.format(progress),
+                                 end='', flush=True)
                 progress += 1
             print()
             print('connected to {!s:s}.'.format(node))
@@ -438,9 +437,8 @@ class ThymioReal(Thymio):
                 r = requests.get(self.httpaddr + self.device)
                 json_data = json.loads(r.text)
                 node = json_data['name']
-                sys.stdout.write('connecting: {:d}. \r'.format(progress),
-                                 end='')
-                sys.stdout.flush()
+                print('connecting: {:d}. \r'.format(progress),
+                                 end='', flush=True)
                 progress += 1
             print()
             print('connected to {!s:s}.'.format(node))
