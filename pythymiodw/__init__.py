@@ -7,7 +7,6 @@ import sys
 import signal
 import turtle
 import pygame
-import queue
 import Pyro4
 from threading import Thread
 from . import io
@@ -358,9 +357,9 @@ class ThymioReal(Thymio):
 
         super().__init__()
         self._prox_horizontal = [0, 0, 0, 0, 0, 0, 0]
-        self._prox_ground_delta = queue.Queue(maxsize=10)
-        self._prox_ground_reflected = queue.Queue(maxsize=10)
-        self._prox_ground_ambiant = queue.Queue(maxsize=10)
+        self._prox_ground_delta = 0
+        self._prox_ground_reflected = 0
+        self._prox_ground_ambiant = 0
         self._accelerometer = [0, 0, 0]
         self._temperature = 0.0
         self._button_center = 0
@@ -485,19 +484,19 @@ class ThymioReal(Thymio):
         """Callback for robot to send delta ground proximity sensor data.
         """
         t = [int(x) for x in r]
-        self._prox_ground_delta.put(t)
+        self._prox_ground_delta = t
 
     def prox_ground_ambiant_handler(self, r):
         """Callback for robot to send delta ground proximity sensor data.
         """
         t = [int(x) for x in r]
-        self._prox_ambiant_delta.put(t)
+        self._prox_ambiant_delta = t
 
     def prox_ground_reflected_handler(self, r):
         """Callback for robot to send delta ground proximity sensor data.
         """
         t = [int(x) for x in r]
-        self._prox_reflected_delta.put(t)
+        self._prox_reflected_delta = t
 
     def set(self, node, var, value):
         if self.bridge == 'asebamedulla':
@@ -676,7 +675,7 @@ class ThymioReal(Thymio):
             self.get_ground(self.device, "prox.ground.delta",
                             reply_handler=self.prox_ground_delta_handler,
                             error_handler=self.get_variables_error)
-        return self._prox_ground_delta.get()
+        return self._prox_ground_delta
 
     def get_prox_ground_reflected(self):
         if self.bridge == 'asebamedulla':
@@ -687,7 +686,7 @@ class ThymioReal(Thymio):
             self.get_ground(self.device, "prox.ground.reflected",
                             reply_handler=self.prox_ground_reflected_handler,
                             error_handler=self.get_variables_error)
-        return self._prox_ground_reflected.get()
+        return self._prox_ground_reflected
 
     def get_prox_ground_ambiant(self):
         if self.bridge == 'asebamedulla':
@@ -698,7 +697,7 @@ class ThymioReal(Thymio):
             self.get_ground(self.device, "prox.ground.ambiant",
                             reply_handler=self.prox_ground_ambiant_handler,
                             error_handler=self.get_variables_error)
-        return self._prox_ground_ambiant.get()
+        return self._prox_ground_ambiant
 
     def get_temperature(self):
         if self.bridge == 'asebamedulla':
