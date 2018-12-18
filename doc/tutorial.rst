@@ -52,7 +52,8 @@ State machine mode behaves differently from the Normal mode. In state machine mo
 - start_state
 - get_next_values()
 
-The following template shows you how to write in State Machine mode.::
+The following template shows you how to write in State Machine mode::
+
     from pythymiodw import *
 	from pythymiodw import io
 	from pythymiodw.sm import *
