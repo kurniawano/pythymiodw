@@ -47,3 +47,39 @@ Your first program to move the robot for one second should looks like the follow
 ------------------
 State Machine Mode
 ------------------
+
+State machine mode behaves differently from the Normal mode. In state machine mode, you need to specify the following:
+- start_state
+- get_next_values()
+
+The following template shows you how to write in State Machine mode.::
+    from pythymiodw import *
+	from pythymiodw import io
+	from pythymiodw.sm import *
+	from libdw import sm
+	from boxworld import *
+
+	class MySMClass(sm.SM):
+	    start_state=None
+	    def get_next_values(self, state, inp):
+	        ground=inp.prox_ground.delta
+	        left=ground[0]
+	        right=ground[1]
+	        print(left,right)
+	        #print(inp.prox_ground.delta)
+	        #print(inp.prox_ground.reflected)
+	        #print(inp.prox_ground.ambiant)
+	                    
+	        return state, io.Action(fv=0.05, rv=0.1)
+
+	MySM=MySMClass()
+
+	############################
+
+	m=ThymioSMSim(MySM, thymio_world, graphic='turtle')
+	try:
+	    m.start()
+	except KeyboardInterrupt:
+	    m.stop()
+
+The first five lines simply import the necessary modules. In state machine mode, we need to create a child class of SM which is defined in sm module. In this child class, we need to define what is the starting state by overriding the start_state attribute. Moreover, we need to override the get_next_values method. This method takes in the current state and the current input and returns two outputs: next state and the output of the state machine. When using pythymiodw, the output of the state machine is an io.Action object. The output must be initialized to a particular forward velocity (fv) and rotational velocity (rv). 
