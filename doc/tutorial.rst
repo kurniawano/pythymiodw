@@ -35,7 +35,7 @@ To disconnect the robot and quit, simply type::
 
 	robot.quit()
 
-Your first program to move the robot for one second should looks like the following::
+Your first program to move the robot for one second should look like the following::
 
 	from pythymiodw import *
 	robot = ThymioReal()
@@ -58,29 +58,56 @@ The following template shows you how to write in State Machine mode::
 	from pythymiodw import io
 	from pythymiodw.sm import *
 	from libdw import sm
-	from boxworld import *
+	from boxworld import thymio_world
 
 	class MySMClass(sm.SM):
 	    start_state=None
 	    def get_next_values(self, state, inp):
-	        ground=inp.prox_ground.delta
-	        left=ground[0]
-	        right=ground[1]
-	        print(left,right)
-	        #print(inp.prox_ground.delta)
-	        #print(inp.prox_ground.reflected)
-	        #print(inp.prox_ground.ambiant)
-	                    
-	        return state, io.Action(fv=0.05, rv=0.1)
+            # These two lines is to stop the robot
+            # by pressing the backward button.
+            # This only works when using the real robot.
+            # It will not work in simulator.
+            if inp.button_backward:
+                return 'halt', io.Action(0, 0)
+            #####################################
 
+            # ground = inp.prox_ground.reflected
+            # ground = inp.prox_ground.ambiant
+
+            # ground = inp.prox_ground.delta
+            try:
+                left = ground[0]
+                right = ground[1]
+            except:
+                left = -1
+                right = -1
+            # print(left,right)
+            next_state = state
+            return next_state, io.Action(fv=0.0, rv=0.1)
+
+        #########################################
+        # Don't modify the code below.
+        # this is to stop the state machine using
+        # inputs from the robot
+        #########################################
+        def done(self, state):
+            if state == 'halt':
+                return True
+            else:
+                return False
+                
 	MySM=MySMClass()
 
 	############################
 
-	m=ThymioSMSim(MySM, thymio_world, graphic='turtle')
+	m=ThymioSMSim(MySM, thymio_world, scale=2)
 	try:
 	    m.start()
 	except KeyboardInterrupt:
 	    m.stop()
 
-The first five lines simply import the necessary modules. In state machine mode, we need to create a child class of SM which is defined in sm module. In this child class, we need to define what is the starting state by overriding the start_state attribute. Moreover, we need to override the get_next_values method. This method takes in the current state and the current input and returns two outputs: next state and the output of the state machine. When using pythymiodw, the output of the state machine is an io.Action object. The output must be initialized to a particular forward velocity (fv) and rotational velocity (rv). 
+The first five lines simply import the necessary modules. In state machine mode, we need to create a child class of SM which is defined in sm module. In this child class, we need to define what is the starting state by overriding the `start_state` attribute. Moreover, we need to override the `get_next_values` method. This method takes in the current state and the current input and returns two outputs: next state and the output of the state machine. When using pythymiodw, the output of the state machine is an `io.Action` object. The output must be initialized to a particular forward velocity (`fv`) and rotational velocity (`rv`). 
+
+The `inp` argument in `get_next_values()` is an object as described in [Common API](common). This means that the line `inp.button_backward` reads the value whether the directional button backward is pressed. If it is, it will give 1, otherwise 0. On the other hand, `inp.prox_ground` returns the object for light detector facing the ground at the front of Thymio. This contains three values `ambiant`, `reflected`, and `delta`. The most useful is `delta` as it gives the difference between the ambiant and the reflected value. This can be used to detect the color of the ground under the sensor. Each of these returns a list of two elements, where the first element is the left value and the second element is the right value of the sensor.
+
+To stop the robot, press the backward button at the top of Thymio. You can also write the state machine to stop the robot by setting the `next_state` to `halt`. 
