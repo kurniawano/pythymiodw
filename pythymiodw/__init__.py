@@ -905,7 +905,11 @@ class ThymioSim(Thymio):
 
     def leds_top(self, r=0, g=0, b=0):
         if sys.platform != 'darwin':
-            self.canvas.itemconfig(self.led, fill=self.colorconvert(r, g, b))
+            try:
+                self.canvas.itemconfig(self.led, fill=self.colorconvert(r, g, b))
+            except:
+                time.sleep(2)
+                self.leds_top(r, g, b)
 
     def colorconvert(self, r, g, b):
         # conversion to 255
