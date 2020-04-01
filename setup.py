@@ -9,7 +9,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='pythymiodw',
-    version='2.3.9',
+    version='2.4.0',
     description='Python library for Thymio used in Digital World class',
     long_description=long_description,
     url='https://github.com/kurniawano/pythymiodw',
@@ -26,7 +26,7 @@ setup(
         ],
     keywords='robot library education',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-    install_requires=['libdw', 'pygame', 'requests', 'Pyro4', 'cryptography<2.6'],
+    install_requires=['libdw', 'pygame', 'requests', 'Pyro4', 'cryptography'],
     package_data={
         'pythymiodw': ['thymiohandlers.aesl','images/iodisplay.png'],
         'pythymiodw.pg':['images/thymio1.png', 'images/thymio2.png', 'images/thymio3.png', 'images/thymio4.png', 'images/thymio5.png'],
